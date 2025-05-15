@@ -21,7 +21,7 @@ const Home = () => {
 
   return (
     <div className="App">
-      <h1>
+      <h1 className="main-heading">
         <Typewriter
           words={['DaycareOS']}
           loop={0}
@@ -32,7 +32,7 @@ const Home = () => {
           delaySpeed={2000}
         />
       </h1>
-      <p>Childcare made simple.</p>
+      <p className="sub-heading">Childcare made simple.</p>
       <SignUpButton onClick={handleSignUpClick} />
       <SignInButton onClick={handleSignInClick} />
     </div>
