@@ -1,39 +1,55 @@
-import React, { Component } from 'react'; // Ensure React is imported
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import SignUpButton from './SignUpButton'; 
-import SignInButton from './SignInButton'; // Ensure the SignInButton is imported
+import SignInButton from './SignInButton';
+import SignUp from './SignUp';
 import { Typewriter } from 'react-simple-typewriter';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-  }
+// Home page component
+const Home = () => {
+  const navigate = useNavigate();
 
-  handleSignUpClick = () => {
-    console.log("Sign Up button clicked");
+  const handleSignUpClick = () => {
+    navigate('/signup');
   };
 
-  render() {
-    return (
-      <div className="App">
-        <h1>
-          <Typewriter
-            words={['DaycareOS']}
-            loop={0}
-            cursor
-            cursorStyle="|"
-            typeSpeed={120}
-            deleteSpeed={100}
-            delaySpeed={2000}
-          />
-        </h1>
-        <p>Childcare made simple.</p>
-        <SignUpButton onClick={this.handleSignUpClick} /> {/* Ensure this is correctly passed */}
-        <SignInButton onClick={this.handleSignInClick} /> {/* Ensure this is correctly passed */}
-      </div>
-    );
-  }
-}
+  const handleSignInClick = () => {
+    console.log("Sign In button clicked");
+    // Future implementation for sign in
+  };
+
+  return (
+    <div className="App">
+      <h1>
+        <Typewriter
+          words={['DaycareOS']}
+          loop={0}
+          cursor
+          cursorStyle="|"
+          typeSpeed={120}
+          deleteSpeed={100}
+          delaySpeed={2000}
+        />
+      </h1>
+      <p>Childcare made simple.</p>
+      <SignUpButton onClick={handleSignUpClick} />
+      <SignInButton onClick={handleSignInClick} />
+    </div>
+  );
+};
+
+// Main App component
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;
 
