@@ -4,7 +4,7 @@ import './SignUpButton.css'; // Ensure the CSS file is imported
 const SignUpButton = ({ onClick }) => {
   return (
     <button className="sign-up-button" onClick={onClick}>
-      Sign Up
+      Sign up
     </button>
   );
 };
