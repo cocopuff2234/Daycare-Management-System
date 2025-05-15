@@ -4,9 +4,9 @@ import './SignInButton.css';
 const SignInButton = ({ onClick }) => {
   return (
     <button className="sign-in-button" onClick={onClick}>
-      Log In
+      Log in
     </button>
   );
 };
 
-export default SignInButton; 
+export default SignInButton;
