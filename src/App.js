@@ -1,6 +1,7 @@
 import React, { Component } from 'react'; // Ensure React is imported
 import './App.css';
 import SignUpButton from './SignUpButton'; 
+import SignInButton from './SignInButton'; // Ensure the SignInButton is imported
 import { Typewriter } from 'react-simple-typewriter';
 
 class App extends Component {
@@ -28,6 +29,7 @@ class App extends Component {
         </h1>
         <p>Childcare made simple.</p>
         <SignUpButton onClick={this.handleSignUpClick} /> {/* Ensure this is correctly passed */}
+        <SignInButton onClick={this.handleSignInClick} /> {/* Ensure this is correctly passed */}
       </div>
     );
   }
