@@ -23,7 +23,7 @@ const Home = () => {
     <div className="App">
       <h1 className="main-heading">
         <Typewriter
-          words={['DaycareOS']}
+          words={['Daycare']}
           loop={0}
           cursor
           cursorStyle="|"
