@@ -5,7 +5,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100vh; /* Full viewport height for the first page */
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .App-logo {
@@ -43,12 +44,82 @@
   }
 }
 
+/* First Page (Main Section) */
+.main-section {
+  height: 100vh; /* Full viewport height for the first page */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  background-color: #ffffff; /* Optional: Add a background color */
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Main Heading */
 .main-heading {
   font-size: 64px;
+  margin-bottom: 10px; /* Adjust spacing below the heading */
+}
+
+/* Subheading */
+.sub-heading {
+  font-size: 32px;
+  margin-top: 0; /* Remove unnecessary negative margin */
+}
+
+/* About Section (Second Page) */
+.about-section {
+  height: 100vh; /* Full viewport height for the second page */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9; /* Optional: Add a background color */
+  padding: 50px 20px;
+  box-sizing: border-box;
+}
+
+/* About Header */
+.about-header {
+  font-size: 32px;
+  color: #333;
+  text-align: center;
   margin-bottom: 20px;
 }
 
-.sub-heading {
-  font-size: 32px; 
-  margin-top: -15px
+/* Flexbox for Sub-Headers and Text */
+.about-content {
+  display: flex;
+  justify-content: space-between; /* Align subheaders to the left and right */
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1200px; /* Optional: Limit the width for better readability */
+  gap: 20px; /* Add spacing between the columns */
+}
+
+/* Sub-Headers */
+.about-sub-header1,
+.about-sub-header2 {
+  flex: 1; /* Make both columns take equal space */
+  text-align: center;
+}
+
+.about-sub-header1 h3,
+.about-sub-header2 h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Text Under Sub-Headers */
+.about-text1,
+.about-text2 {
+  font-size: 16px;
+  color: #444;
+  text-align: center;
+}
+
+html {
+  scroll-behavior: smooth; /* Smooth scrolling between sections */
 }

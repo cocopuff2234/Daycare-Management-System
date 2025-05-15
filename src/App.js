@@ -35,11 +35,25 @@ const Home = () => {
       <p className="sub-heading">Childcare made simple.</p>
       <SignUpButton onClick={handleSignUpClick} />
       <SignInButton onClick={handleSignInClick} />
+      <div className="about-header">
+        <h2> What we do: </h2>
+      </div>
+      <div className="about-sub-header1">
+        <h3> For Administrators:</h3>
+      </div>
+      <div className="about-sub-header2">
+        <h3> For Parents:</h3>
+      </div>
+      <div className="about-text1">
+        <p> Attendance Tracking</p>
+      </div>
+      <div className="about-text2">
+        <p> Child Updates</p>
+      </div>
     </div>
   );
 };
 
-// Main App component
 const App = () => {
   return (
     <Router>

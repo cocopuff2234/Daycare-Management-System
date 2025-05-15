@@ -1,14 +1,18 @@
 .sign-up-button {
-    background-color: #ebde52; 
+    background-color: white; 
     border: none;
     color: black;
-    padding: 15px 32px;
+    padding: 15px 26px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
     cursor: pointer;
     border-radius: 45px;
-    margin-top: -20px;
+    outline: 2px solid #ebde52;
+
+    
+    position: absolute;
+    top: 15px; 
+    right: 140px; 
 }
