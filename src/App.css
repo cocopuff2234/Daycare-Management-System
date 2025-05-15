@@ -6,7 +6,8 @@
   justify-content: center;
   align-items: center;
   height: 100vh; /* Full viewport height for the first page */
-  overflow: hidden; /* Prevent content overflow */
+  overflow-y: scroll;
+  scroll-behavior: smooth;
 }
 
 .App-logo {
@@ -76,44 +77,64 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f9f9f9; /* Optional: Add a background color */
+  background-color: #ffffff; /* Optional: Add a background color */
   padding: 50px 20px;
   box-sizing: border-box;
 }
 
 /* About Header */
 .about-header {
+  position: absolute;
   font-size: 32px;
   color: #333;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 600px;
+  margin-top: -20px
 }
 
-/* Flexbox for Sub-Headers and Text */
+.about-card {
+  border: 1px solid #ddd; /* Add a light border */
+  border-radius: 8px; /* Round the corners */
+  padding: 20px; /* Add padding inside the card */
+  background-color: #f9f9f9; /* Light background color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  width: 45%; /* Ensure the cards take up equal space */
+  text-align: left; /* Align text to the left by default */
+  margin-top: -200px; /* Add spacing between the cards */
+}
+
+.about-card:last-child {
+  text-align: right; /* Align the right card's text to the right */
+}
+
 .about-content {
   display: flex;
-  justify-content: space-between; /* Align subheaders to the left and right */
+  justify-content: space-between; /* Align cards to the left and right */
   align-items: flex-start;
   width: 100%;
   max-width: 1200px; /* Optional: Limit the width for better readability */
-  gap: 20px; /* Add spacing between the columns */
+  gap: 20px; /* Add spacing between the cards */
 }
 
 /* Sub-Headers */
-.about-sub-header1,
+.about-sub-header1 {
+  margin-bottom: 0px;
+  flex: 1;
+  text-align: center;
+}
+
 .about-sub-header2 {
+  margin-bottom: 0px;
   flex: 1; /* Make both columns take equal space */
   text-align: center;
 }
 
-.about-sub-header1 h3,
-.about-sub-header2 h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
 /* Text Under Sub-Headers */
-.about-text1,
+.about-text1 {
+  font-size: 16px;
+  color: #444;
+  text-align: center; /* Align text to the left */
+}
 .about-text2 {
   font-size: 16px;
   color: #444;
