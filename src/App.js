@@ -10,17 +10,23 @@ import { Typewriter } from 'react-simple-typewriter';
 const Home = () => {
   const navigate = useNavigate();
 
-  const handleSignUpClick = () => {
+  // Function for Sign In button navigation
+  const handleSignInClick = () => {
     navigate('/signup');
   };
 
-  const handleSignInClick = () => {
-    console.log("Sign In button clicked");
+  // Function for Contact Us button action
+  const handleContactClick = () => {
+    console.log("Contact Us button clicked");
   };
 
   return (
     <div>
       <div className="App">
+        <div className="header-buttons">
+          <SignInButton onClick={handleSignInClick} />
+          <SignUpButton onClick={handleContactClick} />
+        </div>
         <h1 className="main-heading">
           <Typewriter
             words={['DaycareOS']}
@@ -35,8 +41,6 @@ const Home = () => {
         <p className="sub-heading">Streamline communication, attendance tracking, and billing,</p>
         <p className="sub-heading">giving you more time to focus on what matters most</p>
         <p className="sub-heading">—the children</p>
-        <SignUpButton onClick={handleSignUpClick} />
-        <SignInButton onClick={handleSignInClick} />
       </div>
       <About />
     </div>

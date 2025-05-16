@@ -1,18 +1,19 @@
 .sign-up-button {
-    background-color: white; 
+    background-color: #313131; 
     border: none;
-    color: black;
-    padding: 10px 20px;
+    color: white;
+    padding: 8px 16px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
-    border-radius: 8px;
-    outline: 1px solid #ddd;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    
-    position: absolute;
-    top: 20px; 
-    right: 120px; 
+    border-radius: 20px;
+    font-weight: 400;
+    transition: all 0.2s ease;
+}
+
+.sign-up-button:hover {
+    background-color: #222;
+    transform: translateY(-1px);
 }

@@ -1,22 +1,18 @@
 .sign-in-button {
-    background-color: #4285f4; 
-    border: none;
-    color: white;
-    padding: 10px 20px;
+    background-color: transparent; 
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #333;
+    padding: 8px 16px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    font-weight: 400;
+    transition: all 0.2s ease;
+}
 
-    position: absolute;
-    top: 20px;
-    right: 20px;
-
-    .sign-in-button:hover {
-        background-color: #3b78e7;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);;
-    }
+.sign-in-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
