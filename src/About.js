@@ -7,26 +7,23 @@ const About = () => {
       <div className="about-header">
         <h2>What We Do:</h2>
       </div>
-      <div className="about-content">
-        <div className="about-card">
-          <div className="about-sub-header1">
-            <h3>For Administrators:</h3>
-          </div>
-          <div className="about-text1">
-            <p>Attendance Tracking</p>
-            <p>Monthly Reports</p>
-            <p>Roster Management</p>
-          </div>
+      <div className="feature-cards">
+        <div className="feature-card">
+          <div className="feature-icon attendance-icon"></div>
+          <h3>Attendance Tracking</h3>
+          <p>Easily track check-ins and check-outs with our digital attendance system. Generate reports with a single click.</p>
         </div>
-        <div className="about-card">
-          <div className="about-sub-header2">
-            <h3>For Parents:</h3>
-          </div>
-          <div className="about-text2">
-            <p>Child Updates</p>
-            <p>Daily Reports</p>
-            <p>Simple Billing</p>
-          </div>
+        
+        <div className="feature-card">
+          <div className="feature-icon billing-icon"></div>
+          <h3>Billing & Payments</h3>
+          <p>Automate invoicing, accept online payments, and keep track of all financial transactions in one place.</p>
+        </div>
+        
+        <div className="feature-card">
+          <div className="feature-icon communication-icon"></div>
+          <h3>Parent Communication</h3>
+          <p>Keep parents updated with real-time notifications, messages, and daily activity reports.</p>
         </div>
       </div>
     </div>

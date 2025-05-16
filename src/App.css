@@ -97,53 +97,98 @@
   margin-top: -20px
 }
 
-.about-card {
-  border: 1px solid #ddd; /* Add a light border */
-  border-radius: 8px; /* Round the corners */
-  padding: 20px; /* Add padding inside the card */
-  background-color: #f9f9f9; /* Light background color */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-  width: 45%; /* Ensure the cards take up equal space */
-  text-align: left; /* Align text to the left by default */
-  margin-top: -200px; /* Add spacing between the cards */
-}
-
-.about-card:last-child {
-  text-align: right; /* Align the right card's text to the right */
-}
-
-.about-content {
+/* Feature Cards Section */
+.feature-cards {
   display: flex;
-  justify-content: space-between; /* Align cards to the left and right */
+  justify-content: center;
   align-items: flex-start;
+  gap: 30px;
   width: 100%;
-  max-width: 1200px; /* Optional: Limit the width for better readability */
-  gap: 20px; /* Add spacing between the cards */
+  max-width: 1200px;
+  margin-top: 60px;
 }
 
-/* Sub-Headers */
-.about-sub-header1 {
-  margin-bottom: 0px;
-  flex: 1;
+.feature-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.about-sub-header2 {
-  margin-bottom: 0px;
-  flex: 1; /* Make both columns take equal space */
-  text-align: center;
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
-/* Text Under Sub-Headers */
-.about-text1 {
+.feature-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attendance-icon {
+  background-color: rgba(123, 237, 159, 0.2);
+  position: relative;
+}
+
+.attendance-icon::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2333bb77'%3E%3Cpath d='M16,14v6c0,1.105-0.895,2-2,2H6c-1.105,0-2-0.895-2-2V6c0-1.105,0.895-2,2-2h8c1.105,0,2,0.895,2,2v2h-1.5v-1.5  C14.5,6.225,14.275,6,14,6H6C5.725,6,5.5,6.225,5.5,6.5v13C5.5,19.775,5.725,20,6,20h8c0.275,0,0.5-0.225,0.5-0.5V14H16z M18.5,8  C20.433,8,22,9.567,22,11.5S20.433,15,18.5,15S15,13.433,15,11.5S16.567,8,18.5,8z M18.5,9.5c-1.105,0-2,0.895-2,2  c0,1.105,0.895,2,2,2s2-0.895,2-2C20.5,10.395,19.605,9.5,18.5,9.5z M13.5,10h-7V8.5h7V10z M13.5,13h-7v-1.5h7V13z M10.5,16h-4  v-1.5h4V16z'/%3E%3C/svg%3E");
+  background-size: contain;
+}
+
+.billing-icon {
+  background-color: rgba(132, 116, 255, 0.2);
+  position: relative;
+}
+
+.billing-icon::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c63ff'%3E%3Cpath d='M20,4H4C2.897,4,2,4.897,2,6v12c0,1.103,0.897,2,2,2h16c1.103,0,2-0.897,2-2V6C22,4.897,21.103,4,20,4z M4,6h16v2H4V6z   M4,18v-8h16.001l0.001,8H4z M7,15h10v-2H7V15z M7,11h7V9H7V11z'/%3E%3C/svg%3E");
+  background-size: contain;
+}
+
+.communication-icon {
+  background-color: rgba(125, 233, 214, 0.2);
+  position: relative;
+}
+
+.communication-icon::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2333ccaa'%3E%3Cpath d='M20,2H4C2.897,2,2,2.897,2,4v12c0,1.103,0.897,2,2,2h4v3.766L13.277,18H20c1.103,0,2-0.897,2-2V4C22,2.897,21.103,2,20,2z   M20,16h-7.277L9,18.234V16H4V4h16V16z M7,7h10V9H7V7z M7,11h7v2H7V11z'/%3E%3C/svg%3E");
+  background-size: contain;
+}
+
+.feature-card h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.feature-card p {
   font-size: 16px;
-  color: #444;
-  text-align: center; /* Align text to the left */
-}
-.about-text2 {
-  font-size: 16px;
-  color: #444;
-  text-align: center;
+  line-height: 1.5;
+  color: #666;
 }
 
 html {
