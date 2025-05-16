@@ -1,7 +1,7 @@
 .sign-in-button {
-    background-color: #ebde52; 
+    background-color: #4285f4; 
     border: none;
-    color: black;
+    color: white;
     padding: 10px 20px;
     text-align: center;
     text-decoration: none;
@@ -14,4 +14,9 @@
     position: absolute;
     top: 20px;
     right: 20px;
+
+    .sign-in-button:hover {
+        background-color: #3b78e7;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);;
+    }
 }

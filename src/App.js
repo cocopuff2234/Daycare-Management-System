@@ -32,7 +32,9 @@ const Home = () => {
             delaySpeed={2000}
           />
         </h1>
-        <p className="sub-heading">Childcare made simple.</p>
+        <p className="sub-heading">Streamline communication, attendance tracking, and billing,</p>
+        <p className="sub-heading">giving you more time to focus on what matters most</p>
+        <p className="sub-heading">—the children</p>
         <SignUpButton onClick={handleSignUpClick} />
         <SignInButton onClick={handleSignInClick} />
       </div>
