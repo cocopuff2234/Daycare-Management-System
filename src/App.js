@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import './App.css';
-import ContactUsBtn from './ContactUsBtn'; 
-import SignInBtn from './SignInBtn';
-import About from './About'; 
-import SignUp from './SignUp';
+import './styles/App.css';
+import ContactUsBtn from './components/ContactUsBtn/ContactUsBtn'; 
+import SignInBtn from './components/SignInBtn/SignInBtn';
+import About from './pages/About/About'; 
+import SignUp from './pages/SignUp/SignUp';
 import { Typewriter } from 'react-simple-typewriter';
 
 const Home = () => {
