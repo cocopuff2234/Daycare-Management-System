@@ -1,23 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './styles/App.css';
 import ContactUsBtn from './components/ContactUsBtn/ContactUsBtn'; 
 import SignInBtn from './components/SignInBtn/SignInBtn';
 import About from './pages/About/About'; 
-import SignUp from './pages/SignUp/SignUp';
+import SignIn from './pages/SignIn/SignIn';
 import { Typewriter } from 'react-simple-typewriter';
+import SignUp from './pages/SignUp/SignUp';
+import Contact from './pages/Contact/Contact';
 
-const Home = () => {
+const Home = ({ onNavigate }) => {
   const navigate = useNavigate();
 
   // Function for Sign In button navigation
   const handleSignInClick = () => {
-    navigate('/signup');
+    onNavigate(); // Trigger animation
+    navigate('/signin');
   };
 
   // Function for Contact Us button action
   const handleContactClick = () => {
-    console.log("Contact Us button clicked");
+    onNavigate(); // Trigger animation
+    navigate('/contact');
   };
 
   return (
@@ -48,12 +52,23 @@ const Home = () => {
 };
 
 const App = () => {
+  const [fadeClass, setFadeClass] = useState(''); // State to manage the fade-in class
+
+  const triggerFadeIn = () => {
+    setFadeClass('fade-in'); // Add the fade-in class
+    setTimeout(() => setFadeClass(''), 500); // Remove the class after the animation duration
+  };
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<SignUp />} />
-      </Routes>
+      <div className={fadeClass}> {/* Dynamically apply the fade-in class */}
+        <Routes>
+          <Route path="/" element={<Home onNavigate={triggerFadeIn} />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
+      </div>
     </Router>
   );
 };
