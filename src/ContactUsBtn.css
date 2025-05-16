@@ -1,4 +1,4 @@
-.sign-up-button {
+.contact-us-btn {
     background-color: #313131; 
     border: none;
     color: white;
@@ -13,7 +13,7 @@
     transition: all 0.2s ease;
 }
 
-.sign-up-button:hover {
+.contact-us-btn:hover {
     background-color: #222;
     transform: translateY(-1px);
-}
+} 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
-import SignUpButton from './SignUpButton'; 
-import SignInButton from './SignInButton';
+import ContactUsBtn from './ContactUsBtn'; 
+import SignInBtn from './SignInBtn';
 import About from './About'; 
 import SignUp from './SignUp';
 import { Typewriter } from 'react-simple-typewriter';
@@ -24,8 +24,8 @@ const Home = () => {
     <div>
       <div className="App">
         <div className="header-buttons">
-          <SignInButton onClick={handleSignInClick} />
-          <SignUpButton onClick={handleContactClick} />
+          <SignInBtn onClick={handleSignInClick} />
+          <ContactUsBtn onClick={handleContactClick} />
         </div>
         <h1 className="main-heading">
           <Typewriter
