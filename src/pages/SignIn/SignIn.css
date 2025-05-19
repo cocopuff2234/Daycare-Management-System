@@ -113,8 +113,25 @@ body{
   cursor: pointer;
   text-decoration: underline;
   transition: color 0.3s;
+  margin-bottom: 12px;
 }
 
 .signup-link:hover {
-  color: #003d99; /* Darker blue on hover */
+  color: #003d99;
+}
+
+.reset-link {
+  background: none;
+  border: none;
+  color: #4e95ff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 4px;
+  font-size: 1em;
+  padding: 0;
+}
+
+.reset-link:hover {
+  color: #003d99;
 }

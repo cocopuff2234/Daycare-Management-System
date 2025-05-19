@@ -105,6 +105,14 @@ const SignUp = () => {
       <div className="signup-redirect">
         <p>Don't have an account?</p>
         <p className="signup-link" onClick={handleSignUpRedirect}>Click here!</p>
+        <p>Forgot your password?</p>
+        <button
+          className="reset-link"
+          type="button"
+          onClick={() => navigate('/reset-password')}
+        >
+          Reset it
+        </button>
       </div>
     </div>
   );

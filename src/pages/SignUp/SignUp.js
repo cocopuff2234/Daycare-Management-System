@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../supabaseClient';
 import './SignUp.css';
 
 const SignUp = () => {
@@ -52,22 +53,33 @@ const SignUp = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Form submitted successfully', formData);
-        alert('Account created successfully!');
-        setIsSubmitting(false);
-        navigate('/'); // Redirect to home page after successful signup
-      }, 1000);
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) {
+          setErrors({ email: error.message });
+        } else {
+          alert('Account created! Check your email to confirm.');
+          navigate('/');
+        }
+      } catch (err) {
+        console.error('Unexpected error during sign up:', err);
+        setErrors({ email: 'Unexpected error. Please try again.' });
+      }
+
+      setIsSubmitting(false);
     }
   };
 
