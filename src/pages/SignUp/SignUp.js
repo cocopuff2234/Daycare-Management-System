@@ -55,31 +55,29 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     const validationErrors = validate();
     setErrors(validationErrors);
-
+    
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
+      
+      // Use Supabase signUp API
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+      console.log("Supabase signUp response:", data);
 
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (error) {
-          setErrors({ email: error.message });
-        } else {
-          alert('Account created! Check your email to confirm.');
-          navigate('/');
-        }
-      } catch (err) {
-        console.error('Unexpected error during sign up:', err);
-        setErrors({ email: 'Unexpected error. Please try again.' });
+      if (error) {
+        alert(error.message);
+        setIsSubmitting(false);
+        return;
       }
-
+      
+      alert('Account created successfully!');
       setIsSubmitting(false);
+      navigate('/initial-settings'); // Redirect to initial settings page after successful signup
     }
   };
 
@@ -152,4 +150,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp; 
+export default SignUp;

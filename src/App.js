@@ -9,6 +9,8 @@ import { Typewriter } from 'react-simple-typewriter';
 import SignUp from './pages/SignUp/SignUp';
 import Contact from './pages/Contact/Contact';
 import ResetPassword from './Reset/Reset-password';
+import InitialSettings from './pages/InitialSettings/InitialSettings';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 const Home = ({ onNavigate }) => {
   const navigate = useNavigate();
@@ -69,6 +71,8 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/initial-settings" element={<InitialSettings />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>
