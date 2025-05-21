@@ -25,11 +25,11 @@ const Dashboard = () => {
           </span>
         </button>
         {/* Sidebar content can go here */}
-        <div style={{ flex: 1 }} /> {/* Spacer to push sign out to bottom */}
+        <div style={{ flex: 1 }} />
         <div
           className="sidebar-signout"
           onClick={() => {
-            // Clear user session here if needed (e.g., localStorage.removeItem('token'))
+            // Clear user session here if needed
             window.location.href = '/';
           }}
         >
@@ -45,7 +45,8 @@ const Dashboard = () => {
         </div>
       </aside>
       <div className="dashboard-main">
-        <h1 className="dashboard-heading">Your Daycares:</h1>
+        <h1 className="dashboard-heading">DaycareOS</h1>
+        <h2 className="dashboard-subheading">Your: Daycares</h2>
         <table className="dashboard-table">
           <thead>
             <tr>

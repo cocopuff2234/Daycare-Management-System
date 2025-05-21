@@ -9,6 +9,10 @@ const InitialSettings = () => {
     navigate('/');
   };
 
+  const handleRoleSelect = (role) => {
+    navigate('/dashboard', { state: { role } });
+  };
+
   return (
     <div className="initial-settings-container">
       <button onClick={handleBack} className="back-button">← Back to Home</button>
@@ -16,14 +20,14 @@ const InitialSettings = () => {
       <div className="role-cards">
         <div
           className="role-card"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => handleRoleSelect('parent')}
           style={{ cursor: 'pointer' }}
         >
           <span>Parent</span>
         </div>
         <div
           className="role-card"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => handleRoleSelect('administrator')}
           style={{ cursor: 'pointer' }}
         >
           <span>Administrator</span>

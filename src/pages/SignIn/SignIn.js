@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignIn.css';
+import { supabase } from '../../supabaseClient';
 
-const SignUp = () => {
+const SignIn = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -22,40 +23,40 @@ const SignUp = () => {
 
   const validate = () => {
     const newErrors = {};
-    
-    // Validate email
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
-    // Validate password
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Form submitted successfully', formData);
-        alert('Account created successfully!');
+
+      // Supabase sign in
+      const { error, user } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        setErrors({ password: error.message });
         setIsSubmitting(false);
-        navigate('/'); // Redirect to home page after successful signup
-      }, 1000);
+      } else {
+        // Redirect to dashboard if sign in is successful
+        navigate('/dashboard');
+      }
     }
   };
 
@@ -64,7 +65,7 @@ const SignUp = () => {
   };
 
   const handleSignUpRedirect = () => {
-    navigate('/signup'); // Redirect to the signup page
+    navigate('/signup');
   };
 
   return (
@@ -84,7 +85,6 @@ const SignUp = () => {
           />
           {errors.email && <span className="error-message">{errors.email}</span>}
         </div>
-        
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
@@ -97,9 +97,8 @@ const SignUp = () => {
           />
           {errors.password && <span className="error-message">{errors.password}</span>}
         </div>
-        
         <button type="submit" disabled={isSubmitting} className="signup-button">
-          {isSubmitting ? 'Creating Account...' : 'Sign In'}
+          {isSubmitting ? 'Signing In...' : 'Sign In'}
         </button>
       </form>
       <div className="signup-redirect">
@@ -118,4 +117,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignIn;
