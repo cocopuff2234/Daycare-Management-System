@@ -57,7 +57,7 @@
   display: block;
   height: 4px;
   width: 100%;
-  background: #4e95ff;
+  background: #333; /* Changed from #4e95ff to #333 */
   border-radius: 2px;
   margin-bottom: 5px;
   transition: background 0.2s;
@@ -73,7 +73,7 @@
   align-items: center;
   cursor: pointer;
   margin-top: 32px;
-  color: #4e95ff;
+  color: #333;
   font-weight: 500;
   font-size: 1rem;
   margin-bottom: 16px;
@@ -84,6 +84,10 @@
   align-items: center;
   justify-content: center;
   font-size: 1.6em;
+}
+
+.signout-icon svg path {
+  stroke: #333 !important; /* Changed from #4e95ff to #333 */
 }
 
 .signout-text {
@@ -128,21 +132,33 @@
 
 .plus-btn {
   margin-left: 12px;
-  background: #4e95ff;
-  color: #fff;
-  border: none;
+  background: #fff;
+  color: #333;         /* Changed from #fff to #333 */
+  border: 2px solid #333; /* Add a border for visibility */
   border-radius: 50%;
   width: 28px;
   height: 28px;
   font-size: 1.3em;
   cursor: pointer;
   vertical-align: middle;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s, border 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
 }
 
 .plus-btn:hover {
-  background: #003d99;
+  background: #333;
+  color: #fff;
+  border: 2px solid #333;
+}
+
+.sidebar-settings .settings-icon svg path,
+.sidebar-settings .settings-icon svg circle {
+  stroke: #333;
+}
+.settings-text {
+  margin-top: 8px;
+  text-align: center;
 }
