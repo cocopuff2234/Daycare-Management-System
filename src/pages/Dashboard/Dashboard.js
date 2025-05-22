@@ -20,6 +20,11 @@ const Dashboard = () => {
     phone: ''
   });
 
+  const fetchDaycares = async () => {
+    const { data, error } = await supabase.from('Daycares').select('*');
+    if (!error && data) setDaycares(data);
+  };
+
   // Fetch user role from Users table
   useEffect(() => {
     const fetchRole = async () => {
@@ -42,10 +47,6 @@ const Dashboard = () => {
 
   // Fetch daycares on mount
   useEffect(() => {
-    const fetchDaycares = async () => {
-      const { data, error } = await supabase.from('Daycares').select('*'); // Capital D
-      if (!error && data) setDaycares(data);
-    };
     fetchDaycares();
   }, []);
 
@@ -57,22 +58,23 @@ const Dashboard = () => {
   // Handle create daycare
   const handleCreateDaycare = async (e) => {
     e.preventDefault();
-
-    // Insert new daycare into the Daycares table
-    const { data, error } = await supabase
-      .from('Daycares') // Capital D
-      .insert([newDaycare])
-      .select();
-
-    if (error) {
-      alert('Error saving daycare: ' + error.message);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert('You must be signed in to create a daycare.');
       return;
     }
 
-    setDaycares([...daycares, data[0]]);
-    setShowCreateForm(false);
-    setShowAddOptions(false);
-    setNewDaycare({ name: '', address: '', phone: '' });
+    const { error } = await supabase.from('Daycares').insert([{
+      ...newDaycare,
+      user_id: user.id
+    }]);
+
+    if (error) {
+      alert('Error creating daycare: ' + error.message);
+    } else {
+      setShowCreateForm(false);
+      await fetchDaycares(); // <-- Refresh the list after creation
+    }
   };
 
   // Handle join by code
