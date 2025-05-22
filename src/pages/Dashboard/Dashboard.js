@@ -1,18 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { supabase } from '../../supabaseClient';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  // Sidebar is closed by default
+  const location = useLocation();
   const [sidebarVisible, setSidebarVisible] = useState(false);
+
+  // State for user role
+  const [role, setRole] = useState(null);
+
+  // Admin-specific state
+  const [showAddOptions, setShowAddOptions] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [daycares, setDaycares] = useState([]);
+  const [newDaycare, setNewDaycare] = useState({
+    name: '',
+    address: '',
+    phone: ''
+  });
+
+  // Fetch user role from Users table
+  useEffect(() => {
+    const fetchRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user:', user);
+      if (user) {
+        const { data, error } = await supabase
+          .from('Users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        console.log('Fetched user row:', data, error);
+        if (data && data.role) {
+          setRole(data.role);
+        }
+      }
+    };
+    fetchRole();
+  }, []);
+
+  // Fetch daycares on mount
+  useEffect(() => {
+    const fetchDaycares = async () => {
+      const { data, error } = await supabase.from('Daycares').select('*'); // Capital D
+      if (!error && data) setDaycares(data);
+    };
+    fetchDaycares();
+  }, []);
+
+  // Handle form input
+  const handleFormChange = (e) => {
+    setNewDaycare({ ...newDaycare, [e.target.name]: e.target.value });
+  };
+
+  // Handle create daycare
+  const handleCreateDaycare = async (e) => {
+    e.preventDefault();
+
+    // Insert new daycare into the Daycares table
+    const { data, error } = await supabase
+      .from('Daycares') // Capital D
+      .insert([newDaycare])
+      .select();
+
+    if (error) {
+      alert('Error saving daycare: ' + error.message);
+      return;
+    }
+
+    setDaycares([...daycares, data[0]]);
+    setShowCreateForm(false);
+    setShowAddOptions(false);
+    setNewDaycare({ name: '', address: '', phone: '' });
+  };
+
+  // Handle join by code
+  const handleJoinByCode = () => {
+    const code = window.prompt('Enter daycare code:');
+    if (code) {
+      // You would look up the daycare by code here
+      alert(`Joining daycare with code: ${code}`);
+      setShowAddOptions(false);
+    }
+  };
 
   const toggleSidebar = () => setSidebarVisible((v) => !v);
 
-  const handleAddDaycare = () => {
-    const code = window.prompt('Enter daycare code:');
-    if (code) {
-      alert(`Code entered: ${code}`);
-    }
-  };
+  console.log('role:', role, 'showAddOptions:', showAddOptions, 'showCreateForm:', showCreateForm);
 
   return (
     <div className="dashboard-container">
@@ -48,7 +123,7 @@ const Dashboard = () => {
             {/* Simple gear icon */}
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="3" stroke="#333" strokeWidth="2"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
           {sidebarVisible && (
@@ -58,7 +133,6 @@ const Dashboard = () => {
         <div
           className="sidebar-signout"
           onClick={() => {
-            // Clear user session here if needed
             window.location.href = '/';
           }}
         >
@@ -80,14 +154,83 @@ const Dashboard = () => {
             <tr>
               <th>
                 Add Daycare
-                <button className="plus-btn" onClick={handleAddDaycare} title="Add Daycare">+</button>
+                <button
+                  className="plus-btn"
+                  onClick={() => {
+                    if (role === 'administrator') {
+                      setShowAddOptions((prev) => !prev);
+                    } else {
+                      handleJoinByCode();
+                    }
+                  }}
+                  title="Add Daycare"
+                >+</button>
+                {/* Show options if admin and showAddOptions is true */}
+                {role === 'administrator' && showAddOptions && (
+                  <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
+                    <button
+                      onClick={() => {
+                        setShowCreateForm(true);
+                        setShowAddOptions(false);
+                      }}
+                      style={{ marginRight: 8 }}
+                    >
+                      Create Daycare
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleJoinByCode();
+                        setShowAddOptions(false);
+                      }}
+                    >
+                      With Code
+                    </button>
+                  </div>
+                )}
               </th>
             </tr>
           </thead>
           <tbody>
-            {/* Table rows for daycares can go here */}
+            {daycares.map((dc, idx) => (
+              <tr key={idx}>
+                <td>
+                  <strong>{dc.name}</strong><br />
+                  {dc.address}<br />
+                  {dc.phone}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
+        {/* Create Daycare Form */}
+        {role === 'administrator' && showCreateForm && (
+          <form onSubmit={handleCreateDaycare} style={{ marginTop: 20 }}>
+            <h3>Create New Daycare</h3>
+            <input
+              name="name"
+              placeholder="Daycare Name"
+              value={newDaycare.name}
+              onChange={handleFormChange}
+              required
+            /><br />
+            <input
+              name="address"
+              placeholder="Address"
+              value={newDaycare.address}
+              onChange={handleFormChange}
+              required
+            /><br />
+            <input
+              name="phone"
+              placeholder="Phone"
+              value={newDaycare.phone}
+              onChange={handleFormChange}
+              required
+            /><br />
+            <button type="submit">Create</button>
+            <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
+          </form>
+        )}
       </div>
     </div>
   );
