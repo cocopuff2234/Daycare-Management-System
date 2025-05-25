@@ -77,7 +77,6 @@ const SignUp = () => {
       
       alert('Account created successfully!');
       setIsSubmitting(false);
-      navigate('/initial-settings'); // Redirect to initial settings page after successful signup
     }
   };
 
