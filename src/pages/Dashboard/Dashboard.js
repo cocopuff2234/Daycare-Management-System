@@ -6,11 +6,6 @@ import './Dashboard.css';
 const Dashboard = () => {
   const location = useLocation();
   const [sidebarVisible, setSidebarVisible] = useState(false);
-
-  // State for user role
-  const [role, setRole] = useState(null);
-
-  // Admin-specific state
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [daycares, setDaycares] = useState([]);
@@ -20,40 +15,79 @@ const Dashboard = () => {
     phone: ''
   });
 
+  // Fetch daycares the user created or joined
   const fetchDaycares = async () => {
-    const { data, error } = await supabase.from('Daycares').select('*');
-    if (!error && data) setDaycares(data);
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (!user) {
+      console.error('No user found', userError);
+      return;
+    }
+
+    console.log('Fetching daycares for user:', user.id);
+
+    // 1. Get all daycare IDs where the user is a member
+    const { data: memberRows, error: memberError } = await supabase
+      .from('DaycareMembers')
+      .select('daycare_id')
+      .eq('user_id', user.id);
+
+    if (memberError) {
+      console.error('Error fetching DaycareMembers:', memberError);
+      return;
+    }
+
+    const memberIds = (memberRows || []).map(r => r.daycare_id);
+
+    let memberDaycares = [];
+    if (memberIds.length > 0) {
+      const { data: memberDaycareData, error: memberDataError } = await supabase
+        .from('Daycares')
+        .select('*')
+        .in('id', memberIds);
+
+      if (memberDataError) {
+        console.error('Error fetching joined daycares:', memberDataError);
+      } else {
+        memberDaycares = memberDaycareData || [];
+      }
+    }
+
+    // 2. Get daycares the user created
+    const { data: createdRows, error: createdError } = await supabase
+      .from('Daycares')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (createdError) {
+      console.error('Error fetching created daycares:', createdError);
+    }
+
+    const createdDaycares = createdRows || [];
+
+    // 3. Merge and deduplicate
+    const allDaycares = [...memberDaycares, ...createdDaycares]
+      .filter((dc, idx, arr) => dc && arr.findIndex(d => d.id === dc.id) === idx);
+
+    console.log('Combined daycares:', allDaycares);
+    setDaycares(allDaycares);
   };
 
-  // Fetch user role from Users table
-  useEffect(() => {
-    const fetchRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user:', user);
-      if (user) {
-        const { data, error } = await supabase
-          .from('Users')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        console.log('Fetched user row:', data, error);
-        if (data && data.role) {
-          setRole(data.role);
-        }
-      }
-    };
-    fetchRole();
-  }, []);
-
-  // Fetch daycares on mount
   useEffect(() => {
     fetchDaycares();
   }, []);
 
-  // Handle form input
   const handleFormChange = (e) => {
     setNewDaycare({ ...newDaycare, [e.target.name]: e.target.value });
   };
+
+  function generateDaycareCode(length = 6) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  }
 
   // Handle create daycare
   const handleCreateDaycare = async (e) => {
@@ -63,33 +97,87 @@ const Dashboard = () => {
       alert('You must be signed in to create a daycare.');
       return;
     }
-
-    const { error } = await supabase.from('Daycares').insert([{
+    const code = generateDaycareCode();
+    const { data: insertedDaycare, error } = await supabase.from('Daycares').insert([{
       ...newDaycare,
-      user_id: user.id
-    }]);
-
+      user_id: user.id,
+      code
+    }]).select();
     if (error) {
       alert('Error creating daycare: ' + error.message);
-    } else {
-      setShowCreateForm(false);
-      await fetchDaycares(); // <-- Refresh the list after creation
+      return;
     }
+    let insertedDaycareId;
+    if (insertedDaycare && insertedDaycare.length > 0) {
+      insertedDaycareId = insertedDaycare[0].id;
+    } else if (insertedDaycare && insertedDaycare.id) {
+      insertedDaycareId = insertedDaycare.id;
+    } else {
+      alert('Could not get new daycare ID.');
+      return;
+    }
+    // Insert creator as a member
+    const { error: memberInsertError } = await supabase.from('DaycareMembers').insert([
+      { user_id: user.id, daycare_id: insertedDaycareId }
+    ]);
+    if (memberInsertError) {
+      alert('Error adding creator as member: ' + memberInsertError.message);
+    }
+    setShowCreateForm(false);
+    await fetchDaycares();
+    alert(`Daycare created! Share this code with others to join: ${code}`);
   };
 
   // Handle join by code
-  const handleJoinByCode = () => {
+  const handleJoinByCode = async () => {
     const code = window.prompt('Enter daycare code:');
     if (code) {
-      // You would look up the daycare by code here
-      alert(`Joining daycare with code: ${code}`);
+      const { data: daycare, error } = await supabase
+        .from('Daycares')
+        .select('*')
+        .eq('code', code)
+        .single();
+
+      if (error || !daycare) {
+        alert('No daycare found with that code.');
+        setShowAddOptions(false);
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert('User not found.');
+        return;
+      }
+
+      const { data: existing, error: existingError } = await supabase
+        .from('DaycareMembers')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('daycare_id', daycare.id)
+        .single();
+
+      if (existingError && existingError.code !== 'PGRST116') {
+        console.error('Check existing membership error:', existingError);
+      }
+
+      if (!existing) {
+        const { error: insertError } = await supabase.from('DaycareMembers').insert([
+          { user_id: user.id, daycare_id: daycare.id }
+        ]);
+        if (insertError) {
+          alert('Error joining daycare: ' + insertError.message);
+          return;
+        }
+      }
+
+      alert(`Joined daycare: ${daycare.name}`);
       setShowAddOptions(false);
+      await fetchDaycares();
     }
   };
 
   const toggleSidebar = () => setSidebarVisible((v) => !v);
-
-  console.log('role:', role, 'showAddOptions:', showAddOptions, 'showCreateForm:', showCreateForm);
 
   return (
     <div className="dashboard-container">
@@ -101,7 +189,7 @@ const Dashboard = () => {
             <span />
           </span>
         </button>
-        {/* Sidebar content can go here */}
+        {/* Sidebar content */}
         <div style={{ flex: 1 }} />
         <div
           className="sidebar-settings"
@@ -158,17 +246,11 @@ const Dashboard = () => {
                 Add Daycare
                 <button
                   className="plus-btn"
-                  onClick={() => {
-                    if (role === 'administrator') {
-                      setShowAddOptions((prev) => !prev);
-                    } else {
-                      handleJoinByCode();
-                    }
-                  }}
+                  onClick={() => setShowAddOptions((prev) => !prev)}
                   title="Add Daycare"
                 >+</button>
-                {/* Show options if admin and showAddOptions is true */}
-                {role === 'administrator' && showAddOptions && (
+                {/* Always show add options if toggled */}
+                {showAddOptions && (
                   <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
                     <button
                       onClick={() => {
@@ -204,8 +286,8 @@ const Dashboard = () => {
             ))}
           </tbody>
         </table>
-        {/* Create Daycare Form */}
-        {role === 'administrator' && showCreateForm && (
+        {/* Show create form for any user */}
+        {showCreateForm && (
           <form onSubmit={handleCreateDaycare} style={{ marginTop: 20 }}>
             <h3>Create New Daycare</h3>
             <input

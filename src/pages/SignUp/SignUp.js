@@ -55,13 +55,13 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
-      
+
       // Use Supabase signUp API
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
@@ -74,10 +74,10 @@ const SignUp = () => {
         setIsSubmitting(false);
         return;
       }
-      
-      alert('Account created successfully!');
+
+      // Navigate to VerifyPage and pass the email
+      navigate('/verify', { state: { email: formData.email } });
       setIsSubmitting(false);
-      navigate('/initial-settings'); // Redirect to initial settings page after successful signup
     }
   };
 

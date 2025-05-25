@@ -3,14 +3,13 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import './styles/App.css';
 import ContactUsBtn from './components/ContactUsBtn/ContactUsBtn'; 
 import SignInBtn from './components/SignInBtn/SignInBtn';
-import About from './pages/About/About'; 
 import SignIn from './pages/SignIn/SignIn';
 import { Typewriter } from 'react-simple-typewriter';
 import SignUp from './pages/SignUp/SignUp';
 import Contact from './pages/Contact/Contact';
 import ResetPassword from './Reset/Reset-password';
-import InitialSettings from './pages/InitialSettings/InitialSettings';
 import Dashboard from './pages/Dashboard/Dashboard';
+import VerifyPage from './VerifyPage/VerifyPage';
 
 const Home = ({ onNavigate }) => {
   const navigate = useNavigate();
@@ -49,7 +48,6 @@ const Home = ({ onNavigate }) => {
         <p className="sub-heading">giving you more time to focus on what matters most</p>
         <p className="sub-heading">—the children</p>
       </div>
-      <About />
     </div>
   );
 };
@@ -71,8 +69,8 @@ const App = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/initial-settings" element={<InitialSettings />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/verify" element={<VerifyPage />} />
         </Routes>
       </div>
     </Router>
