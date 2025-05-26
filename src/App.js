@@ -10,6 +10,7 @@ import Contact from './pages/Contact/Contact';
 import ResetPassword from './Reset/Reset-password';
 import Dashboard from './pages/Dashboard/Dashboard';
 import VerifyPage from './VerifyPage/VerifyPage';
+import DaycareDashboard from './DaycareDashboard/DaycareDashboard';
 
 const Home = ({ onNavigate }) => {
   const navigate = useNavigate();
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/verify" element={<VerifyPage />} />
+          <Route path="/daycare/:id" element={<DaycareDashboard />} />
         </Routes>
       </div>
     </Router>

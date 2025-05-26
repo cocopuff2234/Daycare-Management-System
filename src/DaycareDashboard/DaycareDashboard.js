@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
-import './Dashboard.css';
+import { useLocation } from 'react-router-dom';
+import { supabase } from '../supabaseClient'; // Correct path after moving supabaseClient.js
+import '../pages/Dashboard/Dashboard.css';    // Use the correct path for CSS
 
 const Dashboard = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -239,20 +238,21 @@ const Dashboard = () => {
         </div>
       </aside>
       <div className="dashboard-main">
-        <h1 className="dashboard-heading">Your Daycares:</h1>
+        <h1 className="dashboard-heading">Your Roster:</h1>
         <table className="dashboard-table">
           <thead>
             <tr>
               <th>
-                Add Daycare
+                Edit Roster
                 <button
                   className="plus-btn"
                   onClick={() => setShowAddOptions((prev) => !prev)}
-                  title="Add Daycare"
+                  title="Edit Roster"
                 >+</button>
-                {/* Always show add options if toggled */}
+                {/* Add/Edit roster options here if needed */}
                 {showAddOptions && (
                   <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
+                    {/* You can add buttons for adding/editing children here */}
                     <button
                       onClick={() => {
                         setShowCreateForm(true);
@@ -260,15 +260,7 @@ const Dashboard = () => {
                       }}
                       style={{ marginRight: 8 }}
                     >
-                      Create Daycare
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleJoinByCode();
-                        setShowAddOptions(false);
-                      }}
-                    >
-                      With Code
+                      Add Child
                     </button>
                   </div>
                 )}
@@ -276,47 +268,30 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {daycares.map((dc, idx) => (
-              <tr
-                key={idx}
-                style={{ cursor: 'pointer' }}
-                onClick={() => navigate(`/daycare/${dc.id}`)}
-              >
+            {/* Replace with children on the roster when you have the table */}
+            {daycares.map((child, idx) => (
+              <tr key={idx}>
                 <td>
-                  <strong>{dc.name}</strong><br />
-                  {dc.address}<br />
-                  {dc.phone}
+                  <strong>{child.name}</strong><br />
+                  {/* Add more child info here, e.g. age, parent contact, etc. */}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {/* Show create form for any user */}
+        {/* Show create form for adding a child */}
         {showCreateForm && (
-          <form onSubmit={handleCreateDaycare} style={{ marginTop: 20 }}>
-            <h3>Create New Daycare</h3>
+          <form /* onSubmit={handleAddChild} */ style={{ marginTop: 20 }}>
+            <h3>Add Child</h3>
             <input
               name="name"
-              placeholder="Daycare Name"
-              value={newDaycare.name}
-              onChange={handleFormChange}
+              placeholder="Child Name"
+              // value={newChild.name}
+              // onChange={handleChildFormChange}
               required
             /><br />
-            <input
-              name="address"
-              placeholder="Address"
-              value={newDaycare.address}
-              onChange={handleFormChange}
-              required
-            /><br />
-            <input
-              name="phone"
-              placeholder="Phone"
-              value={newDaycare.phone}
-              onChange={handleFormChange}
-              required
-            /><br />
-            <button type="submit">Create</button>
+            {/* Add more fields as needed */}
+            <button type="submit">Add</button>
             <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
           </form>
         )}
