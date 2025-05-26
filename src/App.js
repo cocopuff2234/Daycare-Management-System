@@ -9,6 +9,7 @@ import SignUp from './pages/SignUp/SignUp';
 import Contact from './pages/Contact/Contact';
 import ResetPassword from './Reset/Reset-password';
 import Dashboard from './pages/Dashboard/Dashboard';
+import Settings from './pages/Settings/Settings';
 import VerifyPage from './VerifyPage/VerifyPage';
 import DaycareDashboard from './DaycareDashboard/DaycareDashboard';
 
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/verify" element={<VerifyPage />} />
           <Route path="/daycare/:id" element={<DaycareDashboard />} />
         </Routes>

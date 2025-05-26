@@ -204,6 +204,7 @@ const Dashboard = () => {
             fontWeight: 500,
             fontSize: '1rem'
           }}
+          onClick={() => navigate('/settings')}
         >
           <span className="settings-icon" style={{
             display: 'flex',
