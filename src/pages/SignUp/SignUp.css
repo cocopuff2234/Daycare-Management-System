@@ -1,15 +1,14 @@
-body{
-  background: linear-gradient(to top right, #f0f9ff, #ede9fe, #fce7f3);
-}
+/* Using global background styles */
 
 .signup-container {
   max-width: 500px;
   margin: 40px auto;
-  padding: 30px;
+  padding: 30px 40px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   position: relative;
+  margin-bottom: 40px; /* Ensure there's space at the bottom */
 }
 
 .back-button {
@@ -43,11 +42,13 @@ body{
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .form-group label {
@@ -57,11 +58,13 @@ body{
 }
 
 .form-group input {
-  padding: 12px;
+  padding: 12px 15px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
   transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group input:focus {
