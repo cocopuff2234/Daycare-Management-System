@@ -248,7 +248,7 @@ Note: For security reasons, the account entry might still appear in the authenti
           <button className="back-button" onClick={goBack}>
             ← Back
           </button>
-          <h1>User Settings</h1>
+          <h1>Settings</h1>
         </div>
         
         <div className="user-info-section">
