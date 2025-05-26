@@ -102,16 +102,13 @@ const SignIn = () => {
         </button>
       </form>
       <div className="signup-redirect">
-        <p>Don't have an account?</p>
-        <p className="signup-link" onClick={handleSignUpRedirect}>Click here!</p>
-        <p>Forgot your password?</p>
-        <button
-          className="reset-link"
-          type="button"
-          onClick={() => navigate('/reset-password')}
-        >
-          Reset it
-        </button>
+        <p className="forgot-password" onClick={() => navigate('/reset-password')}>
+          Forgot password?
+        </p>
+        <div className="account-signup">
+          <p>Don't have an account?</p>
+          <p className="signup-link" onClick={handleSignUpRedirect}>Sign up</p>
+        </div>
       </div>
     </div>
   );

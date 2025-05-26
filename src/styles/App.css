@@ -8,8 +8,7 @@
   height: 100vh; /* Full viewport height for the first page */
   overflow-y: scroll;
   scroll-behavior: smooth;
-  background-size: 100% 100%;
-  background: linear-gradient(to top right, #f0f9ff, #ede9fe, #fce7f3);
+  /* Using global background */
 }
 
 .App-logo {
