@@ -11,8 +11,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  position: fixed; /* Change to fixed position */
   z-index: 2;
+  height: 100vh; /* Set to full viewport height */
+  overflow-y: auto; /* Add scroll if content is too tall */
 }
 
 /* Remove the hidden/visible classes since we're not toggling anymore */
@@ -52,12 +54,54 @@
 .dashboard-main {
   flex: 1;
   padding: 32px;
+  margin-left: 84px; /* Add margin to account for fixed sidebar width (60px + 24px padding) */
 }
 
 .dashboard-heading {
   margin-bottom: 32px;
   font-size: 2rem;
   font-weight: 700;
+}
+
+/* Add styles for the daycare code display */
+.code-container {
+  background-color: #f5f7fa;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+}
+
+.code-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.code-value {
+  font-weight: bold;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: #333;
+  font-family: monospace;
+}
+
+.code-copy-button {
+  margin-left: 12px;
+  background: none;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.code-copy-button:hover {
+  background: #f0f0f0;
+  border-color: #999;
 }
 
 .dashboard-subheading {
@@ -74,6 +118,7 @@
   margin-top: 16px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  table-layout: fixed;
 }
 
 .dashboard-table th,
@@ -82,6 +127,41 @@
   border: 1px solid #e0e0e0;
   text-align: left;
   font-size: 1.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Set specific widths for table columns */
+.dashboard-table th:nth-child(1),
+.dashboard-table td:nth-child(1) {
+  width: 25%;
+  position: relative;
+}
+
+.dashboard-table th:nth-child(2),
+.dashboard-table td:nth-child(2) {
+  width: 25%;
+}
+
+.dashboard-table th:nth-child(3),
+.dashboard-table td:nth-child(3) {
+  width: 25%;
+}
+
+.dashboard-table th:nth-child(4),
+.dashboard-table td:nth-child(4) {
+  width: 15%;
+}
+
+/* Specific table styles for DaycareDashboard */
+.daycare-roster-table th:nth-child(1),
+.daycare-roster-table td:nth-child(1) {
+  width: 40%;
+}
+
+.daycare-roster-table th:nth-child(2),
+.daycare-roster-table td:nth-child(2) {
+  width: 60%;
 }
 
 .plus-btn {
