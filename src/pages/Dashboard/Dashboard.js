@@ -6,7 +6,6 @@ import './Dashboard.css';
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [daycares, setDaycares] = useState([]);
@@ -15,6 +14,15 @@ const Dashboard = () => {
     address: '',
     phone: ''
   });
+
+  // Reset form function
+  const resetDaycareForm = () => {
+    setNewDaycare({
+      name: '',
+      address: '',
+      phone: ''
+    });
+  };
 
   // Fetch daycares the user created or joined
   const fetchDaycares = async () => {
@@ -125,6 +133,7 @@ const Dashboard = () => {
       alert('Error adding creator as member: ' + memberInsertError.message);
     }
     setShowCreateForm(false);
+    resetDaycareForm();
     await fetchDaycares();
     alert(`Daycare created! Share this code with others to join: ${code}`);
   };
@@ -178,148 +187,241 @@ const Dashboard = () => {
     }
   };
 
-  const toggleSidebar = () => setSidebarVisible((v) => !v);
+  // Handle direct form toggle
+  const toggleCreateForm = () => {
+    if (!showCreateForm) {
+      resetDaycareForm();
+    }
+    setShowCreateForm(!showCreateForm);
+    setShowAddOptions(false);
+  };
 
   return (
     <div className="dashboard-container">
-      <aside className={`dashboard-sidebar${sidebarVisible ? ' visible' : ' hidden'}`}>
-        <button className="hide-sidebar-btn" onClick={toggleSidebar} title="Toggle Sidebar">
-          <span className="hamburger">
-            <span />
-            <span />
-            <span />
-          </span>
-        </button>
-        {/* Sidebar content */}
-        <div style={{ flex: 1 }} />
-        <div
-          className="sidebar-settings"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            cursor: 'pointer',
-            marginBottom: '24px',
-            color: '#333',
-            fontWeight: 500,
-            fontSize: '1rem'
-          }}
-        >
-          <span className="settings-icon" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.6em'
-          }}>
-            {/* Simple gear icon */}
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="3" stroke="#333" strokeWidth="2"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-          {sidebarVisible && (
-            <span className="settings-text">Settings</span>
-          )}
+      <aside className="dashboard-sidebar">
+        {/* Top part of sidebar */}
+        <div style={{ flex: 1 }}>
+          {/* This can contain any future sidebar menu items */}
         </div>
-        <div
-          className="sidebar-signout"
-          onClick={() => {
-            window.location.href = '/';
-          }}
-        >
-          <span className="signout-icon">
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-              <path d="M16 17l5-5m0 0l-5-5m5 5H9" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-          {sidebarVisible && (
-            <span className="signout-text">Sign Out</span>
-          )}
+        
+        {/* Bottom part with settings and sign out - always visible */}
+        <div style={{ 
+          position: 'absolute',
+          bottom: '50px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <div
+            className="sidebar-settings"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              cursor: 'pointer',
+              marginBottom: '28px',
+              color: '#333',
+              fontWeight: 500,
+              fontSize: '1rem'
+            }}
+            onClick={() => navigate('/settings')}
+          >
+            <span className="settings-icon" style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.6em'
+            }}>
+              {/* Gear icon */}
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </span>
+          </div>
+          <div
+            className="sidebar-signout"
+            onClick={() => {
+              window.location.href = '/';
+            }}
+            style={{ marginTop: 0 }}
+          >
+            <span className="signout-icon">
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                <path d="M16 17l5-5m0 0l-5-5m5 5H9" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </div>
         </div>
       </aside>
       <div className="dashboard-main">
         <h1 className="dashboard-heading">Your Daycares:</h1>
+        
+        <div className="dashboard-actions" style={{ marginBottom: '20px' }}>
+          <button 
+            onClick={toggleCreateForm}
+            style={{ 
+              background: '#333', 
+              color: '#fff', 
+              border: 'none', 
+              padding: '10px 16px', 
+              borderRadius: '4px', 
+              cursor: 'pointer',
+              marginRight: '10px'
+            }}
+          >
+            Add Daycare
+          </button>
+          <button 
+            onClick={handleJoinByCode}
+            style={{ 
+              background: '#fff', 
+              color: '#333', 
+              border: '1px solid #333', 
+              padding: '10px 16px', 
+              borderRadius: '4px', 
+              cursor: 'pointer' 
+            }}
+          >
+            Join by Code
+          </button>
+        </div>
+        
+        {showCreateForm && (
+          <div className="form-container" style={{ 
+            background: 'white', 
+            padding: '20px', 
+            marginBottom: '20px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15)', 
+            borderRadius: '6px',
+            border: '1px solid #e0e0e0',
+            maxWidth: '400px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h3 style={{ margin: 0 }}>Add Daycare</h3>
+              <button 
+                type="button" 
+                onClick={toggleCreateForm} 
+                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleCreateDaycare} style={{ width: '100%' }}>
+              <input
+                name="name"
+                placeholder="Daycare Name"
+                value={newDaycare.name}
+                onChange={handleFormChange}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <input
+                name="address"
+                placeholder="Address"
+                value={newDaycare.address}
+                onChange={handleFormChange}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <input
+                name="phone"
+                placeholder="Phone Number"
+                value={newDaycare.phone}
+                onChange={handleFormChange}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <div style={{ marginTop: 16 }}>
+                <button
+                  type="submit"
+                  style={{ 
+                    padding: '10px 16px', 
+                    marginRight: 8, 
+                    background: '#333', 
+                    color: '#fff', 
+                    border: 'none', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Create
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleCreateForm}
+                  style={{ 
+                    padding: '10px 16px', 
+                    background: 'none', 
+                    border: '1px solid #ccc', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer' 
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        
         <table className="dashboard-table">
           <thead>
             <tr>
-              <th>
-                Add Daycare
-                <button
-                  className="plus-btn"
-                  onClick={() => setShowAddOptions((prev) => !prev)}
-                  title="Add Daycare"
-                >+</button>
-                {/* Always show add options if toggled */}
-                {showAddOptions && (
-                  <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
-                    <button
-                      onClick={() => {
-                        setShowCreateForm(true);
-                        setShowAddOptions(false);
-                      }}
-                      style={{ marginRight: 8 }}
-                    >
-                      Create Daycare
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleJoinByCode();
-                        setShowAddOptions(false);
-                      }}
-                    >
-                      With Code
-                    </button>
-                  </div>
-                )}
-              </th>
+              <th>Daycare Name</th>
+              <th>Address</th>
+              <th>Phone</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {daycares.map((dc, idx) => (
-              <tr
-                key={idx}
-                style={{ cursor: 'pointer' }}
-                onClick={() => navigate(`/daycare/${dc.id}`)}
-              >
-                <td>
-                  <strong>{dc.name}</strong><br />
-                  {dc.address}<br />
-                  {dc.phone}
-                </td>
+            {daycares.length === 0 ? (
+              <tr>
+                <td colSpan="4">No daycares found. Add a daycare to get started.</td>
               </tr>
-            ))}
+            ) : (
+              daycares.map((daycare, idx) => (
+                <tr key={daycare.id || idx}>
+                  <td>{daycare.name}</td>
+                  <td>{daycare.address}</td>
+                  <td>{daycare.phone}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button
+                      onClick={() => navigate(`/daycare/${daycare.id}`)}
+                      style={{ background: '#333', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-        {/* Show create form for any user */}
-        {showCreateForm && (
-          <form onSubmit={handleCreateDaycare} style={{ marginTop: 20 }}>
-            <h3>Create New Daycare</h3>
-            <input
-              name="name"
-              placeholder="Daycare Name"
-              value={newDaycare.name}
-              onChange={handleFormChange}
-              required
-            /><br />
-            <input
-              name="address"
-              placeholder="Address"
-              value={newDaycare.address}
-              onChange={handleFormChange}
-              required
-            /><br />
-            <input
-              name="phone"
-              placeholder="Phone"
-              value={newDaycare.phone}
-              onChange={handleFormChange}
-              required
-            /><br />
-            <button type="submit">Create</button>
-            <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
-          </form>
-        )}
       </div>
     </div>
   );

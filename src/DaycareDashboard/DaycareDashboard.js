@@ -9,7 +9,7 @@ const DaycareDashboard = () => {
   const { id: daycareId } = useParams();
   const navigate = useNavigate();
   const [children, setChildren] = useState([]);
-  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [daycare, setDaycare] = useState(null);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newChild, setNewChild] = useState({
@@ -41,6 +41,23 @@ const DaycareDashboard = () => {
     }
   }, [showSignatureModal]);
 
+  // Fetch daycare details
+  const fetchDaycareDetails = async () => {
+    if (!daycareId) return;
+    
+    const { data, error } = await supabase
+      .from('Daycares')
+      .select('*')
+      .eq('id', daycareId)
+      .single();
+      
+    if (error) {
+      console.error('Error fetching daycare details:', error);
+    } else {
+      setDaycare(data || null);
+    }
+  };
+
   // Fetch children for this daycare
   const fetchRoster = async () => {
     if (!daycareId) return;
@@ -57,6 +74,7 @@ const DaycareDashboard = () => {
   };
 
   useEffect(() => {
+    fetchDaycareDetails();
     fetchRoster();
   }, [daycareId]);
 
@@ -82,8 +100,6 @@ const DaycareDashboard = () => {
     }
   };
 
-  const toggleSidebar = () => setSidebarVisible((v) => !v);
-
   const openSignatureModal = (child, type) => {
     setSignatureChild(child);
     setSignatureType(type);
@@ -100,60 +116,62 @@ const DaycareDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <aside className={`dashboard-sidebar${sidebarVisible ? ' visible' : ' hidden'}`}>
-        <button className="hide-sidebar-btn" onClick={toggleSidebar} title="Toggle Sidebar">
-          <span className="hamburger">
-            <span />
-            <span />
-            <span />
-          </span>
-        </button>
-        {/* Removed home icon/sidebar-home */}
-        <div style={{ flex: 1 }} />
-        <div
-          className="sidebar-settings"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            cursor: 'pointer',
-            marginBottom: '24px',
-            color: '#333',
-            fontWeight: 500,
-            fontSize: '1rem'
-          }}
-        >
-          <span className="settings-icon" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.6em'
-          }}>
-            {/* Simple gear icon */}
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="3" stroke="#333" strokeWidth="2"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-          {sidebarVisible && (
-            <span className="settings-text">Settings</span>
-          )}
+      <aside className="dashboard-sidebar">
+        {/* Top part of sidebar */}
+        <div style={{ flex: 1 }}>
+          {/* This can contain any future sidebar menu items */}
         </div>
-        <div
-          className="sidebar-signout"
-          onClick={() => {
-            window.location.href = '/';
-          }}
-        >
-          <span className="signout-icon">
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-              <path d="M16 17l5-5m0 0l-5-5m5 5H9" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-          {sidebarVisible && (
-            <span className="signout-text">Sign Out</span>
-          )}
+        
+        {/* Bottom part with settings and sign out - always visible */}
+        <div style={{ 
+          position: 'absolute',
+          bottom: '50px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <div
+            className="sidebar-settings"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              cursor: 'pointer',
+              marginBottom: '28px',
+              color: '#333',
+              fontWeight: 500,
+              fontSize: '1rem'
+            }}
+          >
+            <span className="settings-icon" style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.6em'
+            }}>
+              {/* Gear icon */}
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </span>
+          </div>
+          <div
+            className="sidebar-signout"
+            onClick={() => {
+              window.location.href = '/';
+            }}
+            style={{ marginTop: 0 }}
+          >
+            <span className="signout-icon">
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+                <path d="M16 17l5-5m0 0l-5-5m5 5H9" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </div>
         </div>
       </aside>
       <div className="dashboard-main">
@@ -178,8 +196,14 @@ const DaycareDashboard = () => {
           </svg>
           Back
         </button>
+        
+        {/* Remove the daycare name and code section from here */}
+        {daycare && (
+          <h1 className="dashboard-heading">{daycare.name}</h1>
+        )}
+        
         <h1 className="dashboard-heading">Your Roster:</h1>
-        <table className="dashboard-table">
+        <table className="dashboard-table daycare-roster-table">
           <thead>
             <tr>
               <th>
@@ -203,6 +227,15 @@ const DaycareDashboard = () => {
                   </div>
                 )}
               </th>
+              {/* Add daycare code in the header */}
+              {daycare && (
+                <th style={{ textAlign: 'left' }}>
+                  <div className="code-label" style={{ marginBottom: '4px' }}>
+                    Daycare Code:
+                  </div>
+                  <div className="code-value">{daycare.code}</div>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -218,21 +251,21 @@ const DaycareDashboard = () => {
                     DOB: {child.dob}
                   </td>
                   <td style={{ textAlign: 'center' }}>
-                    <span style={{ marginRight: 12 }}>
+                    <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button
                         onClick={() => openSignatureModal(child, 'check_in')}
                       >
                         Check In
                       </button>
                     </span>
-                    <span style={{ marginRight: 12 }}>
+                    <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button
                         onClick={() => openSignatureModal(child, 'check_out')}
                       >
                         Check Out
                       </button>
                     </span>
-                    <span style={{ marginRight: 12 }}>
+                    <span style={{ display: 'inline-block' }}>
                       <button onClick={() => openReportModal(child)}>
                         View Monthly Report
                       </button>

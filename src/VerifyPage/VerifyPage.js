@@ -11,7 +11,7 @@ const VerifyPage = () => {
     <div className="signup-container">
       <button onClick={() => navigate('/')} className="back-button">← Back to Home</button>
       <div className="signup-card">
-        <h2><center>Verify Your Email</center></h2>
+        <h2><center>Verify your email</center></h2>
         <p>
           <center>Please check your email for a verification link and follow the instructions there.</center><br />
           {email && (

@@ -4,68 +4,27 @@
 }
 
 .dashboard-sidebar {
-  width: 60px; /* Minimized width when hidden */
-  max-width: 220px; /* Full width when visible */
+  width: 60px; /* Fixed width - no expansion */
   background: #f5f7fa;
   padding: 24px 12px;
   box-shadow: 2px 0 8px rgba(0,0,0,0.04);
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  transition: max-width 0.4s cubic-bezier(.4,0,.2,1), width 0.4s cubic-bezier(.4,0,.2,1);
+  position: fixed; /* Change to fixed position */
   z-index: 2;
-  min-width: 60px;
+  height: 100vh; /* Set to full viewport height */
+  overflow-y: auto; /* Add scroll if content is too tall */
 }
 
-.dashboard-sidebar.hidden {
-  max-width: 60px;
-  width: 60px;
-  pointer-events: auto;
-}
-
+/* Remove the hidden/visible classes since we're not toggling anymore */
+.dashboard-sidebar.hidden,
 .dashboard-sidebar.visible {
-  max-width: 220px;
-  width: 220px;
-  pointer-events: auto;
+  width: 60px;
+  max-width: 60px;
 }
 
-.hide-sidebar-btn {
-  background: none;
-  border: none;
-  margin-bottom: 16px;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-}
-
-.hamburger {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 28px;
-  height: 22px;
-}
-
-.hamburger span {
-  display: block;
-  height: 4px;
-  width: 100%;
-  background: #333; /* Changed from #4e95ff to #333 */
-  border-radius: 2px;
-  margin-bottom: 5px;
-  transition: background 0.2s;
-}
-
-.hamburger span:last-child {
-  margin-bottom: 0;
-}
+/* Remove the hide-sidebar-btn and hamburger styles since we're removing that button */
 
 .sidebar-signout {
   display: flex;
@@ -87,23 +46,62 @@
 }
 
 .signout-icon svg path {
-  stroke: #333 !important; /* Changed from #4e95ff to #333 */
+  stroke: #333 !important;
 }
 
-.signout-text {
-  margin-top: 8px;
-  text-align: center;
-}
+/* Remove signout-text as we're not showing text anymore */
 
 .dashboard-main {
   flex: 1;
   padding: 32px;
+  margin-left: 84px; /* Add margin to account for fixed sidebar width (60px + 24px padding) */
 }
 
 .dashboard-heading {
   margin-bottom: 32px;
   font-size: 2rem;
   font-weight: 700;
+}
+
+/* Add styles for the daycare code display */
+.code-container {
+  background-color: #f5f7fa;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+}
+
+.code-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.code-value {
+  font-weight: bold;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: #333;
+  font-family: monospace;
+}
+
+.code-copy-button {
+  margin-left: 12px;
+  background: none;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.code-copy-button:hover {
+  background: #f0f0f0;
+  border-color: #999;
 }
 
 .dashboard-subheading {
@@ -120,6 +118,7 @@
   margin-top: 16px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  table-layout: fixed;
 }
 
 .dashboard-table th,
@@ -128,13 +127,48 @@
   border: 1px solid #e0e0e0;
   text-align: left;
   font-size: 1.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Set specific widths for table columns */
+.dashboard-table th:nth-child(1),
+.dashboard-table td:nth-child(1) {
+  width: 25%;
+  position: relative;
+}
+
+.dashboard-table th:nth-child(2),
+.dashboard-table td:nth-child(2) {
+  width: 25%;
+}
+
+.dashboard-table th:nth-child(3),
+.dashboard-table td:nth-child(3) {
+  width: 25%;
+}
+
+.dashboard-table th:nth-child(4),
+.dashboard-table td:nth-child(4) {
+  width: 15%;
+}
+
+/* Specific table styles for DaycareDashboard */
+.daycare-roster-table th:nth-child(1),
+.daycare-roster-table td:nth-child(1) {
+  width: 40%;
+}
+
+.daycare-roster-table th:nth-child(2),
+.daycare-roster-table td:nth-child(2) {
+  width: 60%;
 }
 
 .plus-btn {
   margin-left: 12px;
   background: #fff;
-  color: #333;         /* Changed from #fff to #333 */
-  border: 2px solid #333; /* Add a border for visibility */
+  color: #333;
+  border: 2px solid #333;
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -158,7 +192,5 @@
 .sidebar-settings .settings-icon svg circle {
   stroke: #333;
 }
-.settings-text {
-  margin-top: 8px;
-  text-align: center;
-}
+
+/* Remove settings-text as we're not showing text anymore */
