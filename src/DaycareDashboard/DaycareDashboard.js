@@ -319,37 +319,21 @@ const DaycareDashboard = () => {
                   return;
                 }
                 const signatureDataUrl = sigPadRef.current.getCanvas().toDataURL('image/png');
-                // Save signatureDataUrl to Supabase (as text or upload as file)
-                const { error } = await supabase.from('Attendance').insert([
+                // Store the current timestamp before inserting
+                const currentTimestamp = new Date().toISOString();
+                const { data, error } = await supabase.from('Attendance').insert([
                   {
                     child_id: signatureChild.id,
                     daycare_id: daycareId,
                     type: signatureType,
                     parent_signature: signatureDataUrl,
-                    timestamp: new Date().toISOString()
+                    timestamp: currentTimestamp
                   }
                 ]);
+                console.log('Inserted attendance:', data);
                 if (error) {
                   alert('Error saving attendance: ' + error.message);
                 } else {
-                  if (signatureType === 'check_in') {
-                    const time = new Date().toLocaleString();
-                    const entry = {
-                      Name: signatureChild?.name,
-                      CheckInTime: time,
-                      Signature: signatureDataUrl
-                    };
-
-                    const ws = XLSX.utils.json_to_sheet([entry]);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, 'CheckIns');
-
-                    const blob = new Blob([XLSX.write(wb, { type: 'binary', bookType: 'xlsx' })], { type: 'application/octet-stream' });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `CheckIn_${signatureChild?.name}_${Date.now()}.xlsx`;
-                    a.click();
-                  }
                   setShowSignatureModal(false);
                   setSignatureChild(null);
                   setSignatureType('');
@@ -407,10 +391,76 @@ const DaycareDashboard = () => {
             }}
           >
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                // Placeholder: replace with report fetching logic
-                alert(`Fetching report for ${reportChild?.name}, ${reportMonth}/${reportYear}`);
+                // Fetch attendance and build spreadsheet
+                try {
+                  const startDate = new Date(reportYear, reportMonth - 1, 1);
+                  const endDate = new Date(reportYear, reportMonth, 0); // last day of month
+
+                  const { data: attendanceData, error } = await supabase
+                    .from('Attendance')
+                    .select('*')
+                    .eq('child_id', reportChild.id)
+                    .gte('timestamp', startDate.toISOString())
+                    .lte('timestamp', endDate.toISOString());
+
+                  if (error) {
+                    alert('Error fetching attendance: ' + error.message);
+                    return;
+                  }
+
+                  const daysInMonth = new Date(reportYear, reportMonth, 0).getDate();
+                  const monthName = startDate.toLocaleString('default', { month: 'long' });
+                  // Title row and spacer
+                  const title = `${reportChild.name}'s ${monthName} ${reportYear} Attendance`;
+                  const rows = [[title], []];
+                  // Header row
+                  rows.push(['Date', 'Time In', 'Check-In Signature', 'Time Out', 'Check-Out Signature']);
+
+                  for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(reportYear, reportMonth - 1, day);
+                    const dayStr = date.toISOString().split('T')[0];
+
+                    const checkIn = attendanceData.find(a => a.type === 'check_in' && a.timestamp.startsWith(dayStr));
+                    const checkOut = attendanceData.find(a => a.type === 'check_out' && a.timestamp.startsWith(dayStr));
+
+                    rows.push([
+                      dayStr,
+                      checkIn?.timestamp ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                      checkIn ? checkIn.parent_signature : '',
+                      checkOut?.timestamp ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                      checkOut ? checkOut.parent_signature : ''
+                    ]);
+                  }
+
+                  const ws = XLSX.utils.aoa_to_sheet(rows);
+                  // Optionally adjust column widths
+                  ws['!cols'] = [
+                    { wch: 12 }, // Date
+                    { wch: 10 }, // Time In
+                    { wch: 25 }, // Check-In Signature
+                    { wch: 10 }, // Time Out
+                    { wch: 25 }  // Check-Out Signature
+                  ];
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, 'Report');
+
+                  // Download spreadsheet (open in new tab)
+                  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+                  const buffer = new ArrayBuffer(wbout.length);
+                  const view = new Uint8Array(buffer);
+                  for (let i = 0; i < wbout.length; ++i) {
+                    view[i] = wbout.charCodeAt(i) & 0xFF;
+                  }
+
+                  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                  const url = URL.createObjectURL(blob);
+                  window.open(url);
+                } catch (err) {
+                  alert('Error generating report: ' + err.message);
+                }
                 setShowReportModal(false);
               }}
               style={{
