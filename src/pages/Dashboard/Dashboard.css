@@ -4,8 +4,7 @@
 }
 
 .dashboard-sidebar {
-  width: 60px; /* Minimized width when hidden */
-  max-width: 220px; /* Full width when visible */
+  width: 60px; /* Fixed width - no expansion */
   background: #f5f7fa;
   padding: 24px 12px;
   box-shadow: 2px 0 8px rgba(0,0,0,0.04);
@@ -13,59 +12,17 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  transition: max-width 0.4s cubic-bezier(.4,0,.2,1), width 0.4s cubic-bezier(.4,0,.2,1);
   z-index: 2;
-  min-width: 60px;
 }
 
-.dashboard-sidebar.hidden {
-  max-width: 60px;
-  width: 60px;
-  pointer-events: auto;
-}
-
+/* Remove the hidden/visible classes since we're not toggling anymore */
+.dashboard-sidebar.hidden,
 .dashboard-sidebar.visible {
-  max-width: 220px;
-  width: 220px;
-  pointer-events: auto;
+  width: 60px;
+  max-width: 60px;
 }
 
-.hide-sidebar-btn {
-  background: none;
-  border: none;
-  margin-bottom: 16px;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-}
-
-.hamburger {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 28px;
-  height: 22px;
-}
-
-.hamburger span {
-  display: block;
-  height: 4px;
-  width: 100%;
-  background: #333; /* Changed from #4e95ff to #333 */
-  border-radius: 2px;
-  margin-bottom: 5px;
-  transition: background 0.2s;
-}
-
-.hamburger span:last-child {
-  margin-bottom: 0;
-}
+/* Remove the hide-sidebar-btn and hamburger styles since we're removing that button */
 
 .sidebar-signout {
   display: flex;
@@ -87,13 +44,10 @@
 }
 
 .signout-icon svg path {
-  stroke: #333 !important; /* Changed from #4e95ff to #333 */
+  stroke: #333 !important;
 }
 
-.signout-text {
-  margin-top: 8px;
-  text-align: center;
-}
+/* Remove signout-text as we're not showing text anymore */
 
 .dashboard-main {
   flex: 1;
@@ -133,8 +87,8 @@
 .plus-btn {
   margin-left: 12px;
   background: #fff;
-  color: #333;         /* Changed from #fff to #333 */
-  border: 2px solid #333; /* Add a border for visibility */
+  color: #333;
+  border: 2px solid #333;
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -158,7 +112,5 @@
 .sidebar-settings .settings-icon svg circle {
   stroke: #333;
 }
-.settings-text {
-  margin-top: 8px;
-  text-align: center;
-}
+
+/* Remove settings-text as we're not showing text anymore */

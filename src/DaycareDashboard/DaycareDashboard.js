@@ -9,7 +9,6 @@ const DaycareDashboard = () => {
   const { id: daycareId } = useParams();
   const navigate = useNavigate();
   const [children, setChildren] = useState([]);
-  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newChild, setNewChild] = useState({
@@ -82,8 +81,6 @@ const DaycareDashboard = () => {
     }
   };
 
-  const toggleSidebar = () => setSidebarVisible((v) => !v);
-
   const openSignatureModal = (child, type) => {
     setSignatureChild(child);
     setSignatureType(type);
@@ -100,14 +97,7 @@ const DaycareDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <aside className={`dashboard-sidebar${sidebarVisible ? ' visible' : ' hidden'}`}>
-        <button className="hide-sidebar-btn" onClick={toggleSidebar} title="Toggle Sidebar">
-          <span className="hamburger">
-            <span />
-            <span />
-            <span />
-          </span>
-        </button>
+      <aside className="dashboard-sidebar">
         {/* Removed home icon/sidebar-home */}
         <div style={{ flex: 1 }} />
         <div
@@ -135,9 +125,6 @@ const DaycareDashboard = () => {
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
-          {sidebarVisible && (
-            <span className="settings-text">Settings</span>
-          )}
         </div>
         <div
           className="sidebar-signout"
@@ -151,9 +138,6 @@ const DaycareDashboard = () => {
               <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
-          {sidebarVisible && (
-            <span className="signout-text">Sign Out</span>
-          )}
         </div>
       </aside>
       <div className="dashboard-main">

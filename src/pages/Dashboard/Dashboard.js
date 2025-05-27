@@ -6,7 +6,6 @@ import './Dashboard.css';
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [daycares, setDaycares] = useState([]);
@@ -178,18 +177,9 @@ const Dashboard = () => {
     }
   };
 
-  const toggleSidebar = () => setSidebarVisible((v) => !v);
-
   return (
     <div className="dashboard-container">
-      <aside className={`dashboard-sidebar${sidebarVisible ? ' visible' : ' hidden'}`}>
-        <button className="hide-sidebar-btn" onClick={toggleSidebar} title="Toggle Sidebar">
-          <span className="hamburger">
-            <span />
-            <span />
-            <span />
-          </span>
-        </button>
+      <aside className="dashboard-sidebar">
         {/* Sidebar content */}
         <div style={{ flex: 1 }} />
         <div
@@ -217,9 +207,6 @@ const Dashboard = () => {
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
-          {sidebarVisible && (
-            <span className="settings-text">Settings</span>
-          )}
         </div>
         <div
           className="sidebar-signout"
@@ -233,9 +220,6 @@ const Dashboard = () => {
               <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
-          {sidebarVisible && (
-            <span className="signout-text">Sign Out</span>
-          )}
         </div>
       </aside>
       <div className="dashboard-main">
@@ -248,9 +232,7 @@ const Dashboard = () => {
                 <button
                   className="plus-btn"
                   onClick={() => setShowAddOptions((prev) => !prev)}
-                  title="Add Daycare"
                 >+</button>
-                {/* Always show add options if toggled */}
                 {showAddOptions && (
                   <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
                     <button
@@ -260,7 +242,7 @@ const Dashboard = () => {
                       }}
                       style={{ marginRight: 8 }}
                     >
-                      Create Daycare
+                      Add Daycare
                     </button>
                     <button
                       onClick={() => {
@@ -268,56 +250,84 @@ const Dashboard = () => {
                         setShowAddOptions(false);
                       }}
                     >
-                      With Code
+                      Join by Code
                     </button>
                   </div>
                 )}
               </th>
+              <th>Address</th>
+              <th>Phone</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {daycares.map((dc, idx) => (
-              <tr
-                key={idx}
-                style={{ cursor: 'pointer' }}
-                onClick={() => navigate(`/daycare/${dc.id}`)}
-              >
-                <td>
-                  <strong>{dc.name}</strong><br />
-                  {dc.address}<br />
-                  {dc.phone}
-                </td>
+            {daycares.length === 0 ? (
+              <tr>
+                <td colSpan="4">No daycares found. Add a daycare to get started.</td>
               </tr>
-            ))}
+            ) : (
+              daycares.map((daycare, idx) => (
+                <tr key={daycare.id || idx}>
+                  <td>{daycare.name}</td>
+                  <td>{daycare.address}</td>
+                  <td>{daycare.phone}</td>
+                  <td>
+                    <button
+                      onClick={() => navigate(`/daycare/${daycare.id}`)}
+                      style={{ background: '#333', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-        {/* Show create form for any user */}
+
+        {/* Add daycare form */}
         {showCreateForm && (
           <form onSubmit={handleCreateDaycare} style={{ marginTop: 20 }}>
-            <h3>Create New Daycare</h3>
+            <h3>Add Daycare</h3>
             <input
               name="name"
               placeholder="Daycare Name"
               value={newDaycare.name}
               onChange={handleFormChange}
+              style={{ display: 'block', margin: '10px 0', padding: '8px 12px', width: '300px' }}
               required
-            /><br />
+            />
             <input
               name="address"
               placeholder="Address"
               value={newDaycare.address}
               onChange={handleFormChange}
+              style={{ display: 'block', margin: '10px 0', padding: '8px 12px', width: '300px' }}
               required
-            /><br />
+            />
             <input
               name="phone"
-              placeholder="Phone"
+              placeholder="Phone Number"
               value={newDaycare.phone}
               onChange={handleFormChange}
+              style={{ display: 'block', margin: '10px 0', padding: '8px 12px', width: '300px' }}
               required
-            /><br />
-            <button type="submit">Create</button>
-            <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
+            />
+            <div style={{ marginTop: 16 }}>
+              <button
+                type="submit"
+                style={{ padding: '8px 16px', marginRight: 8, background: '#333', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+              >
+                Create
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateForm(false)}
+                style={{ padding: '8px 16px', background: 'none', border: '1px solid #ccc', borderRadius: 4, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         )}
       </div>
