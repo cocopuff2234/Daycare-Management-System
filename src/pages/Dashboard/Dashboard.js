@@ -81,6 +81,24 @@ const Dashboard = () => {
     setDaycares(allDaycares);
   };
 
+  const handleLeaveDaycare = async (daycareId) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert('User not found');
+      return;
+    }
+    const { error } = await supabase
+      .from('DaycareMembers')
+      .delete()
+      .match({ user_id: user.id, daycare_id: daycareId });
+
+    if (error) {
+      alert('Failed to leave daycare: ' + error.message);
+    } else {
+      setDaycares(prev => prev.filter(dc => dc.id !== daycareId));
+    }
+  };
+
   useEffect(() => {
     fetchDaycares();
   }, []);
@@ -412,9 +430,15 @@ const Dashboard = () => {
                   <td style={{ textAlign: 'center' }}>
                     <button
                       onClick={() => navigate(`/daycare/${daycare.id}`)}
-                      style={{ background: '#333', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}
+                      style={{ background: '#333', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer', marginRight: '8px' }}
                     >
                       View
+                    </button>
+                    <button
+                      onClick={() => handleLeaveDaycare(daycare.id)}
+                      style={{ background: '#d9534f', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 4, cursor: 'pointer' }}
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>

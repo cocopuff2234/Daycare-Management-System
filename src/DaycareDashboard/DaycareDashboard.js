@@ -12,11 +12,13 @@ const DaycareDashboard = () => {
   const [daycare, setDaycare] = useState(null);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showRemoveForm, setShowRemoveForm] = useState(false);
   const [newChild, setNewChild] = useState({
     name: '',
     dob: '',
     // Add more fields as needed
   });
+  const [removeChild, setRemoveChild] = useState({ name: '', dob: '' });
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [signatureChild, setSignatureChild] = useState(null);
   const [signatureType, setSignatureType] = useState(''); // 'check_in' or 'check_out'
@@ -27,6 +29,11 @@ const DaycareDashboard = () => {
   const [reportChild, setReportChild] = useState(null);
   const [reportMonth, setReportMonth] = useState('');
   const [reportYear, setReportYear] = useState('');
+
+  // Absent modal state
+  const [showAbsentModal, setShowAbsentModal] = useState(false);
+  const [absentReason, setAbsentReason] = useState('');
+  const [absentChild, setAbsentChild] = useState(null);
 
   // Ensure signature pad is initialized when modal is shown
   useEffect(() => {
@@ -212,7 +219,13 @@ const DaycareDashboard = () => {
                   className="plus-btn"
                   onClick={() => setShowAddOptions((prev) => !prev)}
                   title="Edit Roster"
-                >+</button>
+                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                  </svg>
+                </button>
                 {showAddOptions && (
                   <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
                     <button
@@ -223,6 +236,14 @@ const DaycareDashboard = () => {
                       style={{ marginRight: 8 }}
                     >
                       Add Child
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowRemoveForm(true);
+                        setShowAddOptions(false);
+                      }}
+                    >
+                      Remove Child
                     </button>
                   </div>
                 )}
@@ -270,6 +291,15 @@ const DaycareDashboard = () => {
                         View Monthly Report
                       </button>
                     </span>
+                    <span style={{ display: 'inline-block', marginLeft: 8 }}>
+                      <button onClick={() => {
+                        setAbsentChild(child);
+                        setAbsentReason('');
+                        setShowAbsentModal(true);
+                      }}>
+                        Mark Absent
+                      </button>
+                    </span>
                   </td>
                 </tr>
               ))
@@ -296,6 +326,57 @@ const DaycareDashboard = () => {
             /><br />
             <button type="submit">Add</button>
             <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
+          </form>
+        )}
+        {showRemoveForm && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const { data, error } = await supabase
+                .from('Roster')
+                .delete()
+                .match({ name: removeChild.name, dob: removeChild.dob, daycare_id: daycareId });
+
+              if (error) {
+                alert('Error removing child: ' + error.message);
+              } else {
+                setShowRemoveForm(false);
+                setRemoveChild({ name: '', dob: '' });
+                setChildren(prev => {
+                  console.log('Trying to remove:', removeChild.name, removeChild.dob);
+                  prev.forEach(c => {
+                    console.log('Child in list:', c.name, new Date(c.dob).toISOString().split('T')[0]);
+                  });
+                  return prev.filter(
+                    c =>
+                      !(
+                        c.name === removeChild.name &&
+                        new Date(c.dob).toISOString().split('T')[0] === removeChild.dob
+                      )
+                  );
+                });
+              }
+            }}
+            style={{ marginTop: 20 }}
+          >
+            <h3>Remove Child</h3>
+            <input
+              name="name"
+              placeholder="Child Name"
+              value={removeChild.name}
+              onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
+              required
+            /><br />
+            <input
+              name="dob"
+              type="date"
+              placeholder="Date of Birth"
+              value={removeChild.dob}
+              onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
+              required
+            /><br />
+            <button type="submit">Remove</button>
+            <button type="button" onClick={() => setShowRemoveForm(false)}>Cancel</button>
           </form>
         )}
         {/* Signature Modal */}
@@ -425,11 +506,17 @@ const DaycareDashboard = () => {
                     const checkIn = attendanceData.find(a => a.type === 'check_in' && a.timestamp.startsWith(dayStr));
                     const checkOut = attendanceData.find(a => a.type === 'check_out' && a.timestamp.startsWith(dayStr));
 
+                    const checkInNote = checkIn?.note ? `${checkIn.note}` : null;
+
                     rows.push([
                       dayStr,
-                      checkIn?.timestamp ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                      checkInNote || (checkIn?.timestamp
+                        ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : ''),
                       checkIn ? checkIn.parent_signature : '',
-                      checkOut?.timestamp ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+                      checkOut?.timestamp
+                        ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : '',
                       checkOut ? checkOut.parent_signature : ''
                     ]);
                   }
@@ -497,6 +584,68 @@ const DaycareDashboard = () => {
               </label>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
                 <button type="button" onClick={() => setShowReportModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit">Submit</button>
+              </div>
+            </form>
+          </div>
+        )}
+        {/* Absent Modal */}
+        {showAbsentModal && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999
+            }}
+          >
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const currentTimestamp = new Date().toISOString();
+                const { data, error } = await supabase.from('Attendance').insert([
+                  {
+                    child_id: absentChild.id,
+                    daycare_id: daycareId,
+                    type: 'check_in',
+                    parent_signature: '',
+                    timestamp: currentTimestamp,
+                    note: `Absent: ${absentReason}`
+                  }
+                ]);
+                if (error) {
+                  alert('Error marking absent: ' + error.message);
+                } else {
+                  setShowAbsentModal(false);
+                  setAbsentChild(null);
+                  setAbsentReason('');
+                }
+              }}
+              style={{
+                background: '#fff',
+                padding: 32,
+                borderRadius: 8,
+                minWidth: 320,
+                boxShadow: '0 2px 16px rgba(0,0,0,0.2)'
+              }}
+            >
+              <h3>Mark Absent for {absentChild?.name}</h3>
+              <label>
+                Reason:<br />
+                <textarea
+                  value={absentReason}
+                  onChange={(e) => setAbsentReason(e.target.value)}
+                  required
+                  style={{ width: '100%', minHeight: '80px', marginTop: 8 }}
+                />
+              </label>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+                <button type="button" onClick={() => setShowAbsentModal(false)}>
                   Cancel
                 </button>
                 <button type="submit">Submit</button>
