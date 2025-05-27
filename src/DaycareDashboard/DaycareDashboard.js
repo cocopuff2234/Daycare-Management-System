@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import ReactSignatureCanvas from 'react-signature-canvas';
 import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import '../pages/Dashboard/Dashboard.css';
 
 const DaycareDashboard = () => {
@@ -29,8 +30,7 @@ const DaycareDashboard = () => {
   const [reportChild, setReportChild] = useState(null);
   const [reportMonth, setReportMonth] = useState('');
   const [reportYear, setReportYear] = useState('');
-
-  // Absent modal state
+  // Mark Absent Modal state
   const [showAbsentModal, setShowAbsentModal] = useState(false);
   const [absentReason, setAbsentReason] = useState('');
   const [absentChild, setAbsentChild] = useState(null);
@@ -459,6 +459,68 @@ const DaycareDashboard = () => {
             </form>
           </div>
         )}
+        {/* Mark Absent Modal */}
+        {showAbsentModal && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999
+            }}
+          >
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const currentTimestamp = new Date().toISOString();
+                const { data, error } = await supabase.from('Attendance').insert([
+                  {
+                    child_id: absentChild.id,
+                    daycare_id: daycareId,
+                    type: 'check_in',
+                    parent_signature: '',
+                    timestamp: currentTimestamp,
+                    note: absentReason
+                  }
+                ]);
+                if (error) {
+                  alert('Error marking absent: ' + error.message);
+                } else {
+                  setShowAbsentModal(false);
+                  setAbsentChild(null);
+                  setAbsentReason('');
+                }
+              }}
+              style={{
+                background: '#fff',
+                padding: 32,
+                borderRadius: 8,
+                minWidth: 320,
+                boxShadow: '0 2px 16px rgba(0,0,0,0.2)'
+              }}
+            >
+              <h3>Mark Absent for {absentChild?.name}</h3>
+              <label>
+                Reason:<br />
+                <textarea
+                  value={absentReason}
+                  onChange={(e) => setAbsentReason(e.target.value)}
+                  required
+                  style={{ width: '100%', minHeight: '80px', marginTop: 8 }}
+                />
+              </label>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+                <button type="button" onClick={() => setShowAbsentModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit">Submit</button>
+              </div>
+            </form>
+          </div>
+        )}
         {showReportModal && (
           <div
             style={{
@@ -474,10 +536,10 @@ const DaycareDashboard = () => {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                // Fetch attendance and build spreadsheet
+                // Fetch attendance and build spreadsheet with exceljs
                 try {
                   const startDate = new Date(reportYear, reportMonth - 1, 1);
-                  const endDate = new Date(reportYear, reportMonth, 0); // last day of month
+                  const endDate = new Date(reportYear, reportMonth, 0);
 
                   const { data: attendanceData, error } = await supabase
                     .from('Attendance')
@@ -491,13 +553,24 @@ const DaycareDashboard = () => {
                     return;
                   }
 
+                  const workbook = new ExcelJS.Workbook();
+                  const sheet = workbook.addWorksheet('Report');
+
+                  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(startDate);
+
+                  // Add title rows before header
+                  sheet.addRow([`${reportChild.name}'s ${monthName} ${reportYear} Attendance`]);
+
+                  
+                  sheet.columns = [
+                    { header: 'Date', key: 'date', width: 15 },
+                    { header: 'Time In', key: 'timeIn', width: 20 },
+                    { header: 'Check-In Signature', key: 'checkInSig', width: 30 },
+                    { header: 'Time Out', key: 'timeOut', width: 20 },
+                    { header: 'Check-Out Signature', key: 'checkOutSig', width: 30 },
+                  ];
+
                   const daysInMonth = new Date(reportYear, reportMonth, 0).getDate();
-                  const monthName = startDate.toLocaleString('default', { month: 'long' });
-                  // Title row and spacer
-                  const title = `${reportChild.name}'s ${monthName} ${reportYear} Attendance`;
-                  const rows = [[title], []];
-                  // Header row
-                  rows.push(['Date', 'Time In', 'Check-In Signature', 'Time Out', 'Check-Out Signature']);
 
                   for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(reportYear, reportMonth - 1, day);
@@ -506,43 +579,44 @@ const DaycareDashboard = () => {
                     const checkIn = attendanceData.find(a => a.type === 'check_in' && a.timestamp.startsWith(dayStr));
                     const checkOut = attendanceData.find(a => a.type === 'check_out' && a.timestamp.startsWith(dayStr));
 
-                    const checkInNote = checkIn?.note ? `${checkIn.note}` : null;
+                    const checkInNote = checkIn?.note ? `Absent: ${checkIn.note}` : null;
+                    const checkInTime = checkInNote || (checkIn?.timestamp
+                      ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : '');
 
-                    rows.push([
-                      dayStr,
-                      checkInNote || (checkIn?.timestamp
-                        ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : ''),
-                      checkIn ? checkIn.parent_signature : '',
-                      checkOut?.timestamp
-                        ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : '',
-                      checkOut ? checkOut.parent_signature : ''
-                    ]);
+                    const checkOutTime = checkOut?.timestamp
+                      ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : '';
+
+                    const row = sheet.addRow({
+                      date: dayStr,
+                      timeIn: checkInTime,
+                      timeOut: checkOutTime,
+                    });
+
+                    if (checkIn?.parent_signature) {
+                      const base64 = checkIn.parent_signature.replace(/^data:image\/png;base64,/, '');
+                      const imageId = workbook.addImage({ base64, extension: 'png' });
+                      sheet.addImage(imageId, {
+                        tl: { col: 2, row: row.number - 1 },
+                        br: { col: 3, row: row.number },
+                      });
+                    }
+
+                    if (checkOut?.parent_signature) {
+                      const base64 = checkOut.parent_signature.replace(/^data:image\/png;base64,/, '');
+                      const imageId = workbook.addImage({ base64, extension: 'png' });
+                      sheet.addImage(imageId, {
+                        tl: { col: 4, row: row.number - 1 },
+                        br: { col: 5, row: row.number },
+                      });
+                    }
                   }
 
-                  const ws = XLSX.utils.aoa_to_sheet(rows);
-                  // Optionally adjust column widths
-                  ws['!cols'] = [
-                    { wch: 12 }, // Date
-                    { wch: 10 }, // Time In
-                    { wch: 25 }, // Check-In Signature
-                    { wch: 10 }, // Time Out
-                    { wch: 25 }  // Check-Out Signature
-                  ];
-                  const wb = XLSX.utils.book_new();
-                  XLSX.utils.book_append_sheet(wb, ws, 'Report');
-
-                  // Download spreadsheet (open in new tab)
-                  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-
-                  const buffer = new ArrayBuffer(wbout.length);
-                  const view = new Uint8Array(buffer);
-                  for (let i = 0; i < wbout.length; ++i) {
-                    view[i] = wbout.charCodeAt(i) & 0xFF;
-                  }
-
-                  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                  const buffer = await workbook.xlsx.writeBuffer();
+                  const blob = new Blob([buffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                  });
                   const url = URL.createObjectURL(blob);
                   window.open(url);
                 } catch (err) {
@@ -584,68 +658,6 @@ const DaycareDashboard = () => {
               </label>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
                 <button type="button" onClick={() => setShowReportModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit">Submit</button>
-              </div>
-            </form>
-          </div>
-        )}
-        {/* Absent Modal */}
-        {showAbsentModal && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(0,0,0,0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 9999
-            }}
-          >
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const currentTimestamp = new Date().toISOString();
-                const { data, error } = await supabase.from('Attendance').insert([
-                  {
-                    child_id: absentChild.id,
-                    daycare_id: daycareId,
-                    type: 'check_in',
-                    parent_signature: '',
-                    timestamp: currentTimestamp,
-                    note: `Absent: ${absentReason}`
-                  }
-                ]);
-                if (error) {
-                  alert('Error marking absent: ' + error.message);
-                } else {
-                  setShowAbsentModal(false);
-                  setAbsentChild(null);
-                  setAbsentReason('');
-                }
-              }}
-              style={{
-                background: '#fff',
-                padding: 32,
-                borderRadius: 8,
-                minWidth: 320,
-                boxShadow: '0 2px 16px rgba(0,0,0,0.2)'
-              }}
-            >
-              <h3>Mark Absent for {absentChild?.name}</h3>
-              <label>
-                Reason:<br />
-                <textarea
-                  value={absentReason}
-                  onChange={(e) => setAbsentReason(e.target.value)}
-                  required
-                  style={{ width: '100%', minHeight: '80px', marginTop: 8 }}
-                />
-              </label>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-                <button type="button" onClick={() => setShowAbsentModal(false)}>
                   Cancel
                 </button>
                 <button type="submit">Submit</button>
