@@ -12,11 +12,13 @@ const DaycareDashboard = () => {
   const [daycare, setDaycare] = useState(null);
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showRemoveForm, setShowRemoveForm] = useState(false);
   const [newChild, setNewChild] = useState({
     name: '',
     dob: '',
     // Add more fields as needed
   });
+  const [removeChild, setRemoveChild] = useState({ name: '', dob: '' });
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [signatureChild, setSignatureChild] = useState(null);
   const [signatureType, setSignatureType] = useState(''); // 'check_in' or 'check_out'
@@ -212,7 +214,13 @@ const DaycareDashboard = () => {
                   className="plus-btn"
                   onClick={() => setShowAddOptions((prev) => !prev)}
                   title="Edit Roster"
-                >+</button>
+                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                  </svg>
+                </button>
                 {showAddOptions && (
                   <div style={{ marginTop: 10, background: '#fff', zIndex: 1000, position: 'relative' }}>
                     <button
@@ -223,6 +231,14 @@ const DaycareDashboard = () => {
                       style={{ marginRight: 8 }}
                     >
                       Add Child
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowRemoveForm(true);
+                        setShowAddOptions(false);
+                      }}
+                    >
+                      Remove Child
                     </button>
                   </div>
                 )}
@@ -296,6 +312,57 @@ const DaycareDashboard = () => {
             /><br />
             <button type="submit">Add</button>
             <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
+          </form>
+        )}
+        {showRemoveForm && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const { data, error } = await supabase
+                .from('Roster')
+                .delete()
+                .match({ name: removeChild.name, dob: removeChild.dob, daycare_id: daycareId });
+
+              if (error) {
+                alert('Error removing child: ' + error.message);
+              } else {
+                setShowRemoveForm(false);
+                setRemoveChild({ name: '', dob: '' });
+                setChildren(prev => {
+                  console.log('Trying to remove:', removeChild.name, removeChild.dob);
+                  prev.forEach(c => {
+                    console.log('Child in list:', c.name, new Date(c.dob).toISOString().split('T')[0]);
+                  });
+                  return prev.filter(
+                    c =>
+                      !(
+                        c.name === removeChild.name &&
+                        new Date(c.dob).toISOString().split('T')[0] === removeChild.dob
+                      )
+                  );
+                });
+              }
+            }}
+            style={{ marginTop: 20 }}
+          >
+            <h3>Remove Child</h3>
+            <input
+              name="name"
+              placeholder="Child Name"
+              value={removeChild.name}
+              onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
+              required
+            /><br />
+            <input
+              name="dob"
+              type="date"
+              placeholder="Date of Birth"
+              value={removeChild.dob}
+              onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
+              required
+            /><br />
+            <button type="submit">Remove</button>
+            <button type="button" onClick={() => setShowRemoveForm(false)}>Cancel</button>
           </form>
         )}
         {/* Signature Modal */}
