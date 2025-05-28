@@ -5,6 +5,7 @@ import ReactSignatureCanvas from 'react-signature-canvas';
 import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import '../pages/Dashboard/Dashboard.css';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const DaycareDashboard = () => {
   const { id: daycareId } = useParams();
@@ -559,15 +560,21 @@ const DaycareDashboard = () => {
                   const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(startDate);
 
                   // Add title rows before header
-                  sheet.addRow([`${reportChild.name}'s ${monthName} ${reportYear} Attendance`]);
+                  const titleRow = sheet.addRow([`${reportChild.name}'s ${monthName} ${reportYear} Attendance`]);
+                  titleRow.font = { bold: true, size: 14 };
+                  sheet.mergeCells(`A${titleRow.number}:E${titleRow.number}`);
+                  titleRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
+                  sheet.addRow([]); // Spacer
+                  sheet.addRow(['Date', 'Time In', 'Check-In Signature', 'Time Out', 'Check-Out Signature']);
+                  
                   
                   sheet.columns = [
-                    { header: 'Date', key: 'date', width: 15 },
-                    { header: 'Time In', key: 'timeIn', width: 20 },
-                    { header: 'Check-In Signature', key: 'checkInSig', width: 30 },
-                    { header: 'Time Out', key: 'timeOut', width: 20 },
-                    { header: 'Check-Out Signature', key: 'checkOutSig', width: 30 },
+                    { key: 'Date', key: 'date', width: 15 },
+                    { key: 'Time In', key: 'timeIn', width: 20 },
+                    { key: 'Check-In Signature', key: 'checkInSig', width: 30 },
+                    { key: 'Time Out', key: 'timeOut', width: 20 },
+                    { key: 'Check-Out Signature', key: 'checkOutSig', width: 30 },
                   ];
 
                   const daysInMonth = new Date(reportYear, reportMonth, 0).getDate();
@@ -580,13 +587,23 @@ const DaycareDashboard = () => {
                     const checkOut = attendanceData.find(a => a.type === 'check_out' && a.timestamp.startsWith(dayStr));
 
                     const checkInNote = checkIn?.note ? `Absent: ${checkIn.note}` : null;
-                    const checkInTime = checkInNote || (checkIn?.timestamp
-                      ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : '');
 
-                    const checkOutTime = checkOut?.timestamp
-                      ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : '';
+                    console.log('Timestamp raw:', checkIn?.timestamp);
+                    console.log('Local time:', new Date(checkIn?.timestamp).toLocaleTimeString());
+
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    });
+
+                  const checkInTime = checkInNote || (checkIn?.timestamp
+                    ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                    : '');
+
+                  const checkOutTime = checkOut?.timestamp
+                    ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                    : '';
 
                     const row = sheet.addRow({
                       date: dayStr,
