@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import ReactSignatureCanvas from 'react-signature-canvas';
@@ -50,7 +50,7 @@ const DaycareDashboard = () => {
   }, [showSignatureModal]);
 
   // Fetch daycare details
-  const fetchDaycareDetails = async () => {
+  const fetchDaycareDetails = useCallback(async () => {
     if (!daycareId) return;
     
     const { data, error } = await supabase
@@ -64,10 +64,10 @@ const DaycareDashboard = () => {
     } else {
       setDaycare(data || null);
     }
-  };
+  }, [daycareId]);
 
   // Fetch children for this daycare
-  const fetchRoster = async () => {
+  const fetchRoster = useCallback(async () => {
     if (!daycareId) return;
     const { data, error } = await supabase
       .from('Roster')
@@ -79,12 +79,12 @@ const DaycareDashboard = () => {
     } else {
       setChildren(data || []);
     }
-  };
+  }, [daycareId]);
 
   useEffect(() => {
     fetchDaycareDetails();
     fetchRoster();
-  }, [daycareId]);
+  }, [daycareId, fetchDaycareDetails, fetchRoster]);
 
   const handleChildFormChange = (e) => {
     setNewChild({ ...newChild, [e.target.name]: e.target.value });
@@ -211,7 +211,7 @@ const DaycareDashboard = () => {
         )}
         
         <h1 className="dashboard-heading">Your Roster:</h1>
-        <table className="dashboard-table daycare-roster-table">
+        <table className="dashboard-table daycare-roster-table" style={{ marginTop: '20px' }}>
           <thead>
             <tr>
               <th>
@@ -234,7 +234,25 @@ const DaycareDashboard = () => {
                         setShowCreateForm(true);
                         setShowAddOptions(false);
                       }}
-                      style={{ marginRight: 8 }}
+                      style={{ 
+                        background: '#fff', 
+                        color: '#333', 
+                        border: '1px solid #333', 
+                        padding: '10px 16px', 
+                        borderRadius: '4px', 
+                        cursor: 'pointer',
+                        marginRight: 8,
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#f8f9fa';
+                        e.target.style.borderColor = '#495057';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = '#fff';
+                        e.target.style.borderColor = '#333';
+                      }}
                     >
                       Add Child
                     </button>
@@ -242,6 +260,24 @@ const DaycareDashboard = () => {
                       onClick={() => {
                         setShowRemoveForm(true);
                         setShowAddOptions(false);
+                      }}
+                      style={{ 
+                        background: '#fff', 
+                        color: '#d9534f', 
+                        border: '1px solid #d9534f', 
+                        padding: '10px 16px', 
+                        borderRadius: '4px', 
+                        cursor: 'pointer',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = '#f8f9fa';
+                        e.target.style.borderColor = '#c9302c';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = '#fff';
+                        e.target.style.borderColor = '#d9534f';
                       }}
                     >
                       Remove Child
@@ -260,6 +296,212 @@ const DaycareDashboard = () => {
               )}
             </tr>
           </thead>
+        </table>
+        
+        {showCreateForm && (
+          <div className="form-container" style={{ 
+            background: 'white', 
+            padding: '20px', 
+            marginTop: '20px',
+            marginBottom: '20px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15)', 
+            borderRadius: '6px',
+            border: '1px solid #e0e0e0',
+            maxWidth: '400px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h3 style={{ margin: 0 }}>Add Child</h3>
+              <button 
+                type="button" 
+                onClick={() => setShowCreateForm(false)} 
+                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleAddChild} style={{ width: '100%' }}>
+              <input
+                name="name"
+                placeholder="Child Name"
+                value={newChild.name}
+                onChange={handleChildFormChange}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <input
+                name="dob"
+                type="date"
+                placeholder="Date of Birth"
+                value={newChild.dob}
+                onChange={handleChildFormChange}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <div style={{ marginTop: 16 }}>
+                <button
+                  type="submit"
+                  style={{ 
+                    padding: '10px 16px', 
+                    marginRight: 8, 
+                    background: '#333', 
+                    color: '#fff', 
+                    border: 'none', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateForm(false)}
+                  style={{ 
+                    padding: '10px 16px', 
+                    background: 'none', 
+                    border: '1px solid #ccc', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer' 
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        
+        {showRemoveForm && (
+          <div className="form-container" style={{ 
+            background: 'white', 
+            padding: '20px', 
+            marginTop: '20px',
+            marginBottom: '20px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15)', 
+            borderRadius: '6px',
+            border: '1px solid #e0e0e0',
+            maxWidth: '400px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h3 style={{ margin: 0 }}>Remove Child</h3>
+              <button 
+                type="button" 
+                onClick={() => setShowRemoveForm(false)} 
+                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}
+              >
+                ×
+              </button>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const { error } = await supabase
+                  .from('Roster')
+                  .delete()
+                  .match({ name: removeChild.name, dob: removeChild.dob, daycare_id: daycareId });
+
+                if (error) {
+                  alert('Error removing child: ' + error.message);
+                } else {
+                  setShowRemoveForm(false);
+                  setRemoveChild({ name: '', dob: '' });
+                  setChildren(prev => {
+                    console.log('Trying to remove:', removeChild.name, removeChild.dob);
+                    prev.forEach(c => {
+                      console.log('Child in list:', c.name, new Date(c.dob).toISOString().split('T')[0]);
+                    });
+                    return prev.filter(
+                      c =>
+                        !(
+                          c.name === removeChild.name &&
+                          new Date(c.dob).toISOString().split('T')[0] === removeChild.dob
+                        )
+                    );
+                  });
+                }
+              }}
+              style={{ width: '100%' }}
+            >
+              <input
+                name="name"
+                placeholder="Child Name"
+                value={removeChild.name}
+                onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <input
+                name="dob"
+                type="date"
+                placeholder="Date of Birth"
+                value={removeChild.dob}
+                onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
+                style={{ 
+                  display: 'block', 
+                  margin: '10px 0', 
+                  padding: '8px 12px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+                required
+              />
+              <div style={{ marginTop: 16 }}>
+                <button
+                  type="submit"
+                  style={{ 
+                    padding: '10px 16px', 
+                    marginRight: 8, 
+                    background: '#d9534f', 
+                    color: '#fff', 
+                    border: 'none', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Remove
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowRemoveForm(false)}
+                  style={{ 
+                    padding: '10px 16px', 
+                    background: 'none', 
+                    border: '1px solid #ccc', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer' 
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        
+        <table className="dashboard-table daycare-roster-table" style={{ marginTop: '20px' }}>
           <tbody>
             {children.length === 0 ? (
               <tr>
@@ -307,79 +549,6 @@ const DaycareDashboard = () => {
             )}
           </tbody>
         </table>
-        {showCreateForm && (
-          <form onSubmit={handleAddChild} style={{ marginTop: 20 }}>
-            <h3>Add Child</h3>
-            <input
-              name="name"
-              placeholder="Child Name"
-              value={newChild.name}
-              onChange={handleChildFormChange}
-              required
-            /><br />
-            <input
-              name="dob"
-              type="date"
-              placeholder="Date of Birth"
-              value={newChild.dob}
-              onChange={handleChildFormChange}
-              required
-            /><br />
-            <button type="submit">Add</button>
-            <button type="button" onClick={() => setShowCreateForm(false)}>Cancel</button>
-          </form>
-        )}
-        {showRemoveForm && (
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const { data, error } = await supabase
-                .from('Roster')
-                .delete()
-                .match({ name: removeChild.name, dob: removeChild.dob, daycare_id: daycareId });
-
-              if (error) {
-                alert('Error removing child: ' + error.message);
-              } else {
-                setShowRemoveForm(false);
-                setRemoveChild({ name: '', dob: '' });
-                setChildren(prev => {
-                  console.log('Trying to remove:', removeChild.name, removeChild.dob);
-                  prev.forEach(c => {
-                    console.log('Child in list:', c.name, new Date(c.dob).toISOString().split('T')[0]);
-                  });
-                  return prev.filter(
-                    c =>
-                      !(
-                        c.name === removeChild.name &&
-                        new Date(c.dob).toISOString().split('T')[0] === removeChild.dob
-                      )
-                  );
-                });
-              }
-            }}
-            style={{ marginTop: 20 }}
-          >
-            <h3>Remove Child</h3>
-            <input
-              name="name"
-              placeholder="Child Name"
-              value={removeChild.name}
-              onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
-              required
-            /><br />
-            <input
-              name="dob"
-              type="date"
-              placeholder="Date of Birth"
-              value={removeChild.dob}
-              onChange={(e) => setRemoveChild({ ...removeChild, [e.target.name]: e.target.value })}
-              required
-            /><br />
-            <button type="submit">Remove</button>
-            <button type="button" onClick={() => setShowRemoveForm(false)}>Cancel</button>
-          </form>
-        )}
         {/* Signature Modal */}
         {showSignatureModal && (
           <div
@@ -477,7 +646,7 @@ const DaycareDashboard = () => {
               onSubmit={async (e) => {
                 e.preventDefault();
                 const currentTimestamp = new Date().toISOString();
-                const { data, error } = await supabase.from('Attendance').insert([
+                const { error } = await supabase.from('Attendance').insert([
                   {
                     child_id: absentChild.id,
                     daycare_id: daycareId,
@@ -570,11 +739,11 @@ const DaycareDashboard = () => {
                   
                   
                   sheet.columns = [
-                    { key: 'Date', key: 'date', width: 15 },
-                    { key: 'Time In', key: 'timeIn', width: 20 },
-                    { key: 'Check-In Signature', key: 'checkInSig', width: 30 },
-                    { key: 'Time Out', key: 'timeOut', width: 20 },
-                    { key: 'Check-Out Signature', key: 'checkOutSig', width: 30 },
+                    { key: 'date', width: 15 },
+                    { key: 'timeIn', width: 20 },
+                    { key: 'checkInSig', width: 30 },
+                    { key: 'timeOut', width: 20 },
+                    { key: 'checkOutSig', width: 30 },
                   ];
 
                   const daysInMonth = new Date(reportYear, reportMonth, 0).getDate();
@@ -591,19 +760,13 @@ const DaycareDashboard = () => {
                     console.log('Timestamp raw:', checkIn?.timestamp);
                     console.log('Local time:', new Date(checkIn?.timestamp).toLocaleTimeString());
 
-                    const formatter = new Intl.DateTimeFormat('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true,
-                    });
+                    const checkInTime = checkInNote || (checkIn?.timestamp
+                      ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                      : '');
 
-                  const checkInTime = checkInNote || (checkIn?.timestamp
-                    ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-                    : '');
-
-                  const checkOutTime = checkOut?.timestamp
-                    ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-                    : '';
+                    const checkOutTime = checkOut?.timestamp
+                      ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                      : '';
 
                     const row = sheet.addRow({
                       date: dayStr,
