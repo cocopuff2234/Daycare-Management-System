@@ -9,11 +9,37 @@ const Dashboard = () => {
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [daycares, setDaycares] = useState([]);
+  const [children, setChildren] = useState([]);
   const [newDaycare, setNewDaycare] = useState({
     name: '',
     address: '',
     phone: ''
   });
+  // Fetch children for the user
+  const fetchChildren = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error('No user found');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('Children')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error fetching children:', error);
+        setChildren([]);
+      } else {
+        setChildren(data || []);
+      }
+    } catch (err) {
+      console.error('Unexpected error fetching children:', err);
+      setChildren([]);
+    }
+  };
 
   // Reset form function
   const resetDaycareForm = () => {
@@ -174,6 +200,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDaycares();
+    fetchChildren();
   }, []);
 
   const handleFormChange = (e) => {
@@ -286,6 +313,37 @@ const Dashboard = () => {
     setShowCreateForm(!showCreateForm);
     setShowAddOptions(false);
   };
+
+  // Replace handleRemoveChild with a direct version (for reference/future use):
+  // const handleRemoveChild = async (childId) => {
+  //   const { data: { user } } = await supabase.auth.getUser();
+  //   if (!user) {
+  //     alert('User not found');
+  //     return;
+  //   }
+  //
+  //   // Optimistically remove from UI
+  //   setChildren((prev) => prev.filter(child => child.id !== childId));
+  //
+  //   try {
+  //     const { error } = await supabase
+  //       .from('Children')
+  //       .delete()
+  //       .match({ id: childId, user_id: user.id });
+  //
+  //     if (error) {
+  //       console.error('Error deleting child:', error);
+  //       alert('Failed to remove child: ' + error.message);
+  //       await fetchChildren(); // Revert UI
+  //     } else {
+  //       console.log('Child successfully deleted');
+  //     }
+  //   } catch (err) {
+  //     console.error('Unexpected error deleting child:', err);
+  //     alert('Unexpected error: ' + err.message);
+  //     await fetchChildren(); // Revert UI
+  //   }
+  // };
 
   return (
     <div className="dashboard-container">
