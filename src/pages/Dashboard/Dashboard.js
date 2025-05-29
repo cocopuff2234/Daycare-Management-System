@@ -87,15 +87,88 @@ const Dashboard = () => {
       alert('User not found');
       return;
     }
-    const { error } = await supabase
-      .from('DaycareMembers')
-      .delete()
-      .match({ user_id: user.id, daycare_id: daycareId });
 
-    if (error) {
-      alert('Failed to leave daycare: ' + error.message);
-    } else {
-      setDaycares(prev => prev.filter(dc => dc.id !== daycareId));
+    console.log('Attempting to remove daycare membership:', { userId: user.id, daycareId });
+
+    // Optimistically remove daycare from local state
+    setDaycares((prev) => prev.filter(dc => dc.id !== daycareId));
+
+    try {
+      // Check if the user is the creator of the daycare
+      const { data: daycare, error: fetchError } = await supabase
+        .from('Daycares')
+        .select('user_id')
+        .eq('id', daycareId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error checking daycare ownership:', fetchError);
+        alert('Error checking daycare ownership: ' + fetchError.message);
+        // Revert removal since backend check failed
+        await fetchDaycares();
+        return;
+      }
+
+      if (daycare.user_id === user.id) {
+        const confirmDelete = window.confirm('You are the creator of this daycare. Deleting it will remove all associated data. Are you sure?');
+        if (!confirmDelete) {
+          // User canceled, revert removal
+          await fetchDaycares();
+          return;
+        }
+
+        console.log('Deleting daycare members for daycare:', daycareId);
+        const { error: deleteMembersError } = await supabase
+          .from('DaycareMembers')
+          .delete()
+          .eq('daycare_id', daycareId);
+
+        if (deleteMembersError) {
+          console.error('Error deleting daycare members:', deleteMembersError);
+        } else {
+          console.log('Deleted daycare members successfully');
+        }
+
+        console.log('Deleting daycare:', daycareId);
+        const { error: deleteDaycareError } = await supabase
+          .from('Daycares')
+          .delete()
+          .eq('id', daycareId);
+
+        if (deleteDaycareError) {
+          console.error('Error deleting daycare:', deleteDaycareError);
+        } else {
+          console.log('Deleted daycare successfully');
+        }
+
+        if (deleteMembersError || deleteDaycareError) {
+          alert('Failed to delete daycare: ' + (deleteMembersError?.message || deleteDaycareError?.message));
+          await fetchDaycares(); // revert
+          return;
+        }
+
+        // No need to fetch again because we already removed it optimistically
+        return;
+      }
+
+      console.log('Deleting user membership for daycare:', daycareId);
+      // Remove user from DaycareMembers
+      const { error } = await supabase
+        .from('DaycareMembers')
+        .delete()
+        .match({ user_id: user.id, daycare_id: daycareId });
+
+      if (error) {
+        console.error('Failed to delete membership:', error);
+        alert('Failed to leave daycare: ' + error.message);
+        await fetchDaycares(); // revert state if failure
+      } else {
+        console.log('Deleted membership successfully');
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      alert('Unexpected error: ' + err.message);
+      await fetchDaycares(); // revert
     }
   };
 
