@@ -529,18 +529,18 @@ const DaycareDashboard = () => {
                         Check Out
                       </button>
                     </span>
-                    <span style={{ display: 'inline-block' }}>
-                      <button onClick={() => openReportModal(child)}>
-                        View Monthly Report
-                      </button>
-                    </span>
-                    <span style={{ display: 'inline-block', marginLeft: 8 }}>
+                    <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button onClick={() => {
                         setAbsentChild(child);
                         setAbsentReason('');
                         setShowAbsentModal(true);
                       }}>
                         Mark Absent
+                      </button>
+                    </span>
+                    <span style={{ display: 'inline-block' }}>
+                      <button onClick={() => openReportModal(child)}>
+                        View Monthly Report
                       </button>
                     </span>
                   </td>
