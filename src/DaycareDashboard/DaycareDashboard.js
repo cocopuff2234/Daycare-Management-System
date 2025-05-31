@@ -738,7 +738,7 @@ const DaycareDashboard = () => {
                   
                   
                   sheet.columns = [
-                    { key: 'date', width: 15 },
+                    { key: 'date', width: 20 },
                     { key: 'timeIn', width: 20 },
                     { key: 'checkInSig', width: 30 },
                     { key: 'timeOut', width: 20 },
@@ -750,6 +750,11 @@ const DaycareDashboard = () => {
                   for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(reportYear, reportMonth - 1, day);
                     const dayStr = date.toISOString().split('T')[0];
+                    
+                    // Get day of week
+                    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const dayOfWeek = daysOfWeek[date.getDay()];
+                    const dateWithDay = `${dayStr} (${dayOfWeek})`;
 
                     const checkIn = attendanceData.find(a => a.type === 'check_in' && a.timestamp.startsWith(dayStr));
                     const checkOut = attendanceData.find(a => a.type === 'check_out' && a.timestamp.startsWith(dayStr));
@@ -768,7 +773,7 @@ const DaycareDashboard = () => {
                       : '';
 
                     const row = sheet.addRow({
-                      date: dayStr,
+                      date: dateWithDay,
                       timeIn: checkInTime,
                       timeOut: checkOutTime,
                     });
