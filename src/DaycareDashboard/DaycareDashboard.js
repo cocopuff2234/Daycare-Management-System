@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import ReactSignatureCanvas from 'react-signature-canvas';
-import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import '../pages/Dashboard/Dashboard.css';
-import { formatInTimeZone } from 'date-fns-tz';
 
 const DaycareDashboard = () => {
   const { id: daycareId } = useParams();
@@ -24,7 +22,6 @@ const DaycareDashboard = () => {
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [signatureChild, setSignatureChild] = useState(null);
   const [signatureType, setSignatureType] = useState(''); // 'check_in' or 'check_out'
-  const [parentSignature, setParentSignature] = useState('');
   const sigPadRef = useRef();
 
   const [showReportModal, setShowReportModal] = useState(false);
@@ -35,6 +32,10 @@ const DaycareDashboard = () => {
   const [showAbsentModal, setShowAbsentModal] = useState(false);
   const [absentReason, setAbsentReason] = useState('');
   const [absentChild, setAbsentChild] = useState(null);
+  // Report confirmation state
+  const [showReportConfirmation, setShowReportConfirmation] = useState(false);
+  const [reportBlob, setReportBlob] = useState(null);
+  const [reportFileName, setReportFileName] = useState('');
 
   // Ensure signature pad is initialized when modal is shown
   useEffect(() => {
@@ -111,7 +112,6 @@ const DaycareDashboard = () => {
   const openSignatureModal = (child, type) => {
     setSignatureChild(child);
     setSignatureType(type);
-    setParentSignature('');
     setShowSignatureModal(true);
   };
 
@@ -588,7 +588,6 @@ const DaycareDashboard = () => {
                   setShowSignatureModal(false);
                   setSignatureChild(null);
                   setSignatureType('');
-                  setParentSignature('');
                 }
               }}
               style={{
@@ -797,13 +796,126 @@ const DaycareDashboard = () => {
                   const blob = new Blob([buffer], {
                     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                   });
-                  const url = URL.createObjectURL(blob);
-                  window.open(url);
+                  
+                  // Instead of automatically downloading, show confirmation dialog
+                  const fileName = `${reportChild.name}_${monthName}_${reportYear}_Attendance.xlsx`;
+                  
+                  setReportBlob(blob);
+                  setReportFileName(fileName);
+                  setShowReportModal(false);
+                  setShowReportConfirmation(true);
                 } catch (err) {
                   alert('Error generating report: ' + err.message);
                 }
-                setShowReportModal(false);
               }}
+              style={{
+                background: '#fff',
+                padding: 32,
+                borderRadius: 8,
+                minWidth: 380,
+                boxShadow: '0 2px 16px rgba(0,0,0,0.2)'
+              }}
+            >
+              <h3>Monthly Report for {reportChild?.name}</h3>
+              <div style={{ marginBottom: 24, paddingLeft: 0, paddingRight: 0 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
+                  Month:
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={reportMonth}
+                    onChange={(e) => setReportMonth(e.target.value)}
+                    required
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '10px 12px',
+                      marginTop: 6,
+                      fontSize: '15px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </label>
+              </div>
+              
+              <div style={{ marginBottom: 28, paddingLeft: 0, paddingRight: 0 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
+                  Year:
+                  <input
+                    type="number"
+                    min="2000"
+                    max="2100"
+                    value={reportYear}
+                    onChange={(e) => setReportYear(e.target.value)}
+                    required
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '10px 12px',
+                      marginTop: 6,
+                      fontSize: '15px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </label>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowReportModal(false)}
+                  style={{ 
+                    background: '#f0f0f0',
+                    color: '#333',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  style={{ 
+                    background: '#2563eb', 
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        {showReportConfirmation && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999
+            }}
+          >
+            <div
               style={{
                 background: '#fff',
                 padding: 32,
@@ -812,37 +924,82 @@ const DaycareDashboard = () => {
                 boxShadow: '0 2px 16px rgba(0,0,0,0.2)'
               }}
             >
-              <h3>Monthly Report for {reportChild?.name}</h3>
-              <label>
-                Month:
-                <input
-                  type="number"
-                  min="1"
-                  max="12"
-                  value={reportMonth}
-                  onChange={(e) => setReportMonth(e.target.value)}
-                  required
-                />
-              </label>
-              <br />
-              <label>
-                Year:
-                <input
-                  type="number"
-                  min="2000"
-                  max="2100"
-                  value={reportYear}
-                  onChange={(e) => setReportYear(e.target.value)}
-                  required
-                />
-              </label>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-                <button type="button" onClick={() => setShowReportModal(false)}>
+              <h3>Report Generated</h3>
+              <p>Your report has been generated successfully. Would you like to download it now?</p>
+              <p style={{ fontSize: '0.9em', color: '#666' }}>{reportFileName}</p>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 24 }}>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setShowReportConfirmation(false);
+                    setReportBlob(null);
+                    setReportFileName('');
+                  }}
+                  style={{ 
+                    background: '#f0f0f0',
+                    color: '#333',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    transition: 'all 0.2s ease',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#e0e0e0';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#f0f0f0';
+                  }}
+                >
                   Cancel
                 </button>
-                <button type="submit">Submit</button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (reportBlob) {
+                      const url = URL.createObjectURL(reportBlob);
+                      // Create a temporary anchor element to trigger download
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = reportFileName;
+                      document.body.appendChild(a);
+                      a.click();
+                      // Clean up
+                      window.URL.revokeObjectURL(url);
+                      document.body.removeChild(a);
+                      
+                      setShowReportConfirmation(false);
+                      setReportBlob(null);
+                      setReportFileName('');
+                    }
+                  }}
+                  style={{ 
+                    background: '#2563eb', 
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#1d4ed8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#2563eb';
+                  }}
+                >
+                  Download
+                </button>
               </div>
-            </form>
+            </div>
           </div>
         )}
       </div>
