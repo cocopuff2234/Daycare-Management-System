@@ -581,10 +581,21 @@ const DaycareDashboard = () => {
                     timestamp: currentTimestamp
                   }
                 ]);
-                console.log('Inserted attendance:', data);
+                console.log('Inserted attendance:', {
+                  child_id: signatureChild.id,
+                  type: signatureType,
+                  timestamp: currentTimestamp,
+                  time: new Date(currentTimestamp).toLocaleTimeString(),
+                  date: new Date(currentTimestamp).toLocaleDateString(),
+                  data: data,
+                  error: error
+                });
                 if (error) {
+                  console.error('Database error details:', error);
                   alert('Error saving attendance: ' + error.message);
                 } else {
+                  console.log('Successfully saved attendance record:', data);
+                  alert(`Successfully recorded ${signatureType === 'check_in' ? 'check-in' : 'check-out'} for ${signatureChild.name}`);
                   setShowSignatureModal(false);
                   setSignatureChild(null);
                   setSignatureType('');
@@ -649,7 +660,7 @@ const DaycareDashboard = () => {
                   {
                     child_id: absentChild.id,
                     daycare_id: daycareId,
-                    type: 'check_in',
+                    type: 'absent',
                     parent_signature: '',
                     timestamp: currentTimestamp,
                     note: absentReason
@@ -658,6 +669,7 @@ const DaycareDashboard = () => {
                 if (error) {
                   alert('Error marking absent: ' + error.message);
                 } else {
+                  alert(`Successfully marked ${absentChild.name} as absent: ${absentReason}`);
                   setShowAbsentModal(false);
                   setAbsentChild(null);
                   setAbsentReason('');
@@ -709,18 +721,50 @@ const DaycareDashboard = () => {
                 try {
                   const startDate = new Date(reportYear, reportMonth - 1, 1);
                   const endDate = new Date(reportYear, reportMonth, 0);
+                  // Set end date to end of day to include all records
+                  endDate.setHours(23, 59, 59, 999);
 
                   const { data: attendanceData, error } = await supabase
                     .from('Attendance')
                     .select('*')
                     .eq('child_id', reportChild.id)
                     .gte('timestamp', startDate.toISOString())
-                    .lte('timestamp', endDate.toISOString());
+                    .lte('timestamp', endDate.toISOString())
+                    .order('timestamp', { ascending: true });
 
                   if (error) {
                     alert('Error fetching attendance: ' + error.message);
                     return;
                   }
+
+                  // Debug: Log all attendance records
+                  console.log('All attendance records for report:', attendanceData);
+                  console.log('Total records found:', attendanceData.length);
+                  console.log('Date range:', startDate.toISOString(), 'to', endDate.toISOString());
+                  console.log('Child ID:', reportChild.id);
+                  
+                  // Group records by day for easier debugging
+                  const recordsByDay = {};
+                  attendanceData.forEach(record => {
+                    // Use local date string for grouping to avoid timezone issues
+                    const recordDate = new Date(record.timestamp);
+                    const localDateStr = recordDate.getFullYear() + '-' + 
+                      String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(recordDate.getDate()).padStart(2, '0');
+                    
+                    if (!recordsByDay[localDateStr]) {
+                      recordsByDay[localDateStr] = [];
+                    }
+                    recordsByDay[localDateStr].push({
+                      ...record, // Store the full record
+                      type: record.type,
+                      time: recordDate.toLocaleTimeString(),
+                      hasSignature: !!record.parent_signature,
+                      note: record.note || null,
+                      timestamp: record.timestamp
+                    });
+                  });
+                  console.log('Records grouped by day:', recordsByDay);
 
                   const workbook = new ExcelJS.Workbook();
                   const sheet = workbook.addWorksheet('Report');
@@ -751,49 +795,104 @@ const DaycareDashboard = () => {
                     const date = new Date(reportYear, reportMonth - 1, day);
                     const dayStr = date.toISOString().split('T')[0];
                     
+                    // Create local date string for matching
+                    const localDayStr = date.getFullYear() + '-' + 
+                      String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(date.getDate()).padStart(2, '0');
+                    
                     // Get day of week
                     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     const dayOfWeek = daysOfWeek[date.getDay()];
-                    const dateWithDay = `${dayStr} (${dayOfWeek})`;
+                    const dateWithDay = `${localDayStr} (${dayOfWeek})`;
 
-                    const checkIn = attendanceData.find(a => a.type === 'check_in' && a.timestamp.startsWith(dayStr));
-                    const checkOut = attendanceData.find(a => a.type === 'check_out' && a.timestamp.startsWith(dayStr));
+                    // Find attendance records for this day using local date string
+                    const dayRecords = recordsByDay[localDayStr] || [];
+                    
+                    const checkIn = dayRecords.find(r => r.type === 'check_in');
+                    const checkOut = dayRecords.find(r => r.type === 'check_out');
+                    const absent = dayRecords.find(r => r.type === 'absent');
 
-                    const checkInNote = checkIn?.note ? `Absent: ${checkIn.note}` : null;
-
-                    console.log('Timestamp raw:', checkIn?.timestamp);
-                    console.log('Local time:', new Date(checkIn?.timestamp).toLocaleTimeString());
-
-                    const checkInTime = checkInNote || (checkIn?.timestamp
-                      ? new Date(checkIn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-                      : '');
-
-                    const checkOutTime = checkOut?.timestamp
-                      ? new Date(checkOut.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-                      : '';
-
-                    const row = sheet.addRow({
-                      date: dateWithDay,
-                      timeIn: checkInTime,
-                      timeOut: checkOutTime,
-                    });
-
-                    if (checkIn?.parent_signature) {
-                      const base64 = checkIn.parent_signature.replace(/^data:image\/png;base64,/, '');
-                      const imageId = workbook.addImage({ base64, extension: 'png' });
-                      sheet.addImage(imageId, {
-                        tl: { col: 2, row: row.number - 1 },
-                        br: { col: 3, row: row.number },
-                      });
+                    // Enhanced debugging
+                    if (dayRecords.length > 0) {
+                      console.log(`Processing ${localDayStr} with ${dayRecords.length} records:`, dayRecords);
+                      console.log('Check-in found:', !!checkIn, checkIn ? 'with signature:' + !!checkIn.hasSignature : '');
+                      console.log('Check-out found:', !!checkOut, checkOut ? 'with signature:' + !!checkOut.hasSignature : '');
+                      console.log('Absent found:', !!absent);
                     }
 
-                    if (checkOut?.parent_signature) {
-                      const base64 = checkOut.parent_signature.replace(/^data:image\/png;base64,/, '');
-                      const imageId = workbook.addImage({ base64, extension: 'png' });
-                      sheet.addImage(imageId, {
-                        tl: { col: 4, row: row.number - 1 },
-                        br: { col: 5, row: row.number },
+                    // For debugging
+                    if (checkIn || checkOut || absent) {
+                      console.log(`Found records for ${localDayStr}:`, 
+                        checkIn ? `Check-in at ${checkIn.time}` : 'No check-in',
+                        checkOut ? `Check-out at ${checkOut.time}` : 'No check-out',
+                        absent ? `Absent: ${absent.note}` : 'Not absent'
+                      );
+                    }
+
+                    const checkInNote = absent?.note ? `Absent: ${absent.note}` : null;
+
+                    const formatTime = (timestamp) => {
+                      if (!timestamp) return '';
+                      const date = new Date(timestamp);
+                      return date.toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        hour12: true 
                       });
+                    };
+
+                    const checkInTime = checkInNote || (checkIn?.timestamp ? formatTime(checkIn.timestamp) : '');
+                    const checkOutTime = checkOut?.timestamp ? formatTime(checkOut.timestamp) : '';
+
+                    const rowData = {
+                      date: dateWithDay,
+                      timeIn: checkInTime,
+                      checkInSig: checkIn?.hasSignature ? 'Signature Present' : '',
+                      timeOut: checkOutTime,
+                      checkOutSig: checkOut?.hasSignature ? 'Signature Present' : '',
+                    };
+
+                    // Log what we're adding to the spreadsheet
+                    if (checkInTime || checkOutTime || checkIn?.hasSignature || checkOut?.hasSignature) {
+                      console.log(`Adding row for ${localDayStr}:`, rowData);
+                    }
+
+                    const row = sheet.addRow(rowData);
+
+                    // Set row height if there are signatures
+                    if (checkIn?.hasSignature || checkOut?.hasSignature) {
+                      row.height = 60; // Increase row height to accommodate signature images
+                    }
+
+                    // Add signature images if they exist
+                    if (checkIn?.hasSignature) {
+                      try {
+                        if (checkIn.parent_signature) {
+                          const base64 = checkIn.parent_signature.replace(/^data:image\/png;base64,/, '');
+                          const imageId = workbook.addImage({ base64, extension: 'png' });
+                          sheet.addImage(imageId, {
+                            tl: { col: 2, row: row.number - 1 },
+                            br: { col: 2.8, row: row.number - 0.2 },
+                          });
+                        }
+                      } catch (err) {
+                        console.error('Error adding check-in signature image:', err);
+                      }
+                    }
+
+                    if (checkOut?.hasSignature) {
+                      try {
+                        if (checkOut.parent_signature) {
+                          const base64 = checkOut.parent_signature.replace(/^data:image\/png;base64,/, '');
+                          const imageId = workbook.addImage({ base64, extension: 'png' });
+                          sheet.addImage(imageId, {
+                            tl: { col: 4, row: row.number - 1 },
+                            br: { col: 4.8, row: row.number - 0.2 },
+                          });
+                        }
+                      } catch (err) {
+                        console.error('Error adding check-out signature image:', err);
+                      }
                     }
                   }
 
