@@ -23,7 +23,9 @@
   font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 8px;
+  position: relative;
+  top: -4px;
+  margin-bottom: 6px;
   width: 100%;
 }
 
