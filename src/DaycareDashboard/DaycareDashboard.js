@@ -793,7 +793,6 @@ const DaycareDashboard = () => {
 
                   for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(reportYear, reportMonth - 1, day);
-                    const dayStr = date.toISOString().split('T')[0];
                     
                     // Create local date string for matching
                     const localDayStr = date.getFullYear() + '-' + 
@@ -847,49 +846,44 @@ const DaycareDashboard = () => {
                     const rowData = {
                       date: dateWithDay,
                       timeIn: checkInTime,
-                      checkInSig: checkIn?.hasSignature ? 'Signature Present' : '',
+                      checkInSig: '', // No "Signature Present" text
                       timeOut: checkOutTime,
-                      checkOutSig: checkOut?.hasSignature ? 'Signature Present' : '',
+                      checkOutSig: '', // No "Signature Present" text
                     };
-
-                    // Log what we're adding to the spreadsheet
-                    if (checkInTime || checkOutTime || checkIn?.hasSignature || checkOut?.hasSignature) {
-                      console.log(`Adding row for ${localDayStr}:`, rowData);
-                    }
 
                     const row = sheet.addRow(rowData);
 
-                    // Set row height if there are signatures
+                    // Set row height for signature visibility (smaller, e.g. 50)
                     if (checkIn?.hasSignature || checkOut?.hasSignature) {
-                      row.height = 60; // Increase row height to accommodate signature images
+                      row.height = 50;
                     }
 
                     // Add signature images if they exist
-                    if (checkIn?.hasSignature) {
+                    if (checkIn?.hasSignature && checkIn.parent_signature) {
                       try {
-                        if (checkIn.parent_signature) {
-                          const base64 = checkIn.parent_signature.replace(/^data:image\/png;base64,/, '');
-                          const imageId = workbook.addImage({ base64, extension: 'png' });
-                          sheet.addImage(imageId, {
-                            tl: { col: 2, row: row.number - 1 },
-                            br: { col: 2.8, row: row.number - 0.2 },
-                          });
-                        }
+                        const base64 = checkIn.parent_signature.replace(/^data:image\/png;base64,/, '');
+                        const imageId = workbook.addImage({ base64, extension: 'png' });
+                        // Full width, but not too tall (more vertical inset)
+                        sheet.addImage(imageId, {
+                          tl: { col: 2, row: row.number - 1 + 0.25 }, // start at left edge, inset top
+                          br: { col: 3, row: row.number - 0.25 },     // end at right edge, inset bottom
+                          editAs: 'oneCell'
+                        });
                       } catch (err) {
                         console.error('Error adding check-in signature image:', err);
                       }
                     }
 
-                    if (checkOut?.hasSignature) {
+                    if (checkOut?.hasSignature && checkOut.parent_signature) {
                       try {
-                        if (checkOut.parent_signature) {
-                          const base64 = checkOut.parent_signature.replace(/^data:image\/png;base64,/, '');
-                          const imageId = workbook.addImage({ base64, extension: 'png' });
-                          sheet.addImage(imageId, {
-                            tl: { col: 4, row: row.number - 1 },
-                            br: { col: 4.8, row: row.number - 0.2 },
-                          });
-                        }
+                        const base64 = checkOut.parent_signature.replace(/^data:image\/png;base64,/, '');
+                        const imageId = workbook.addImage({ base64, extension: 'png' });
+                        // Full width, but not too tall (more vertical inset)
+                        sheet.addImage(imageId, {
+                          tl: { col: 4, row: row.number - 1 + 0.25 },
+                          br: { col: 5, row: row.number - 0.25 },
+                          editAs: 'oneCell'
+                        });
                       } catch (err) {
                         console.error('Error adding check-out signature image:', err);
                       }
