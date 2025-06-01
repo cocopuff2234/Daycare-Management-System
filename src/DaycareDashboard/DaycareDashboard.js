@@ -830,27 +830,29 @@ const DaycareDashboard = () => {
 
                     const checkInNote = absent?.note ? `Absent: ${absent.note}` : null;
 
-                    const formatTime = (timestamp) => {
+                    // Helper to convert UTC timestamp string to local time string (system time zone)
+                    const formatLocalTime = (timestamp) => {
                       if (!timestamp) return '';
-                      const date = new Date(timestamp);
-                      return date.toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit', 
-                        hour12: true 
-                      });
+                      // Parse the UTC timestamp string
+                      const utcDate = new Date(timestamp);
+                      // Get the user's local time zone offset in minutes
+                      const tzOffsetMinutes = utcDate.getTimezoneOffset();
+                      // Adjust the date by the offset (convert UTC to local)
+                      const localDate = new Date(utcDate.getTime() - tzOffsetMinutes * 60000);
+                      // Format as local time string (hour:minute AM/PM)
+                      return localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
                     };
 
-                    const checkInTime = checkInNote || (checkIn?.timestamp ? formatTime(checkIn.timestamp) : '');
-                    const checkOutTime = checkOut?.timestamp ? formatTime(checkOut.timestamp) : '';
+                    const checkInTime = checkIn?.timestamp ? formatLocalTime(checkIn.timestamp) : (absent?.note ? `Absent: ${absent.note}` : '');
+                    const checkOutTime = checkOut?.timestamp ? formatLocalTime(checkOut.timestamp) : '';
 
                     const rowData = {
                       date: dateWithDay,
                       timeIn: checkInTime,
-                      checkInSig: '', // No "Signature Present" text
+                      checkInSig: '',
                       timeOut: checkOutTime,
-                      checkOutSig: '', // No "Signature Present" text
+                      checkOutSig: '',
                     };
-
                     const row = sheet.addRow(rowData);
 
                     // Set row height for signature visibility (smaller, e.g. 50)
@@ -1044,7 +1046,7 @@ const DaycareDashboard = () => {
                     fontSize: '14px',
                     transition: 'all 0.2s ease',
                     fontWeight: '500',
-                    boxShadow: '0 1px 3px rgba(0,0,0.1,0.1)'
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.background = '#e0e0e0';
