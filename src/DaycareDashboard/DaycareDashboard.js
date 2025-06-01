@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 import ReactSignatureCanvas from 'react-signature-canvas';
 import ExcelJS from 'exceljs';
 import '../pages/Dashboard/Dashboard.css';
-
+// Constance Shi
 const DaycareDashboard = () => {
   const { id: daycareId } = useParams();
   const navigate = useNavigate();
@@ -1050,7 +1050,7 @@ const DaycareDashboard = () => {
                     fontSize: '14px',
                     transition: 'all 0.2s ease',
                     fontWeight: '500',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                    boxShadow: '0 1px 3px rgba(0,0,0.1,0.1)'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.background = '#e0e0e0';
