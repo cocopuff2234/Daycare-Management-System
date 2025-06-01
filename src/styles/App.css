@@ -5,7 +5,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Full viewport height for the first page */
+  min-height: 100vh;
   height: 100vh;
   overflow: hidden;
   padding: 20px;
