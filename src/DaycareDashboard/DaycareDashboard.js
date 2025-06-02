@@ -146,19 +146,26 @@ const DaycareDashboard = () => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              justifyContent: 'center', // <-- Add this line to center vertically
               cursor: 'pointer',
               marginBottom: '28px',
               color: '#333',
               fontWeight: 500,
-              fontSize: '1rem'
+              fontSize: '1rem',
+              width: '100%', // <-- Ensure full width for centering
+              minHeight: 48, // <-- Optional: ensure enough height for vertical centering
             }}
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate('/settings')} // <-- This ensures navigation works
+            tabIndex={0} // <-- Makes it keyboard accessible
+            role="button" // <-- Accessibility
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate('/settings'); }}
           >
             <span className="settings-icon" style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.6em'
+              fontSize: '1.6em',
+              width: '100%', // <-- Ensure icon is centered horizontally
             }}>
               {/* Gear icon */}
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2">
@@ -747,19 +754,22 @@ const DaycareDashboard = () => {
                   // Group records by day for easier debugging
                   const recordsByDay = {};
                   attendanceData.forEach(record => {
-                    // Use local date string for grouping to avoid timezone issues
-                    const recordDate = new Date(record.timestamp);
-                    const localDateStr = recordDate.getFullYear() + '-' + 
-                      String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                      String(recordDate.getDate()).padStart(2, '0');
-                    
+                    // Convert the UTC timestamp to a Date object
+                    const utcDate = new Date(record.timestamp);
+                    // Convert to the user's local time zone
+                    const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+                    // Use the local date string for grouping (YYYY-MM-DD)
+                    const localDateStr = localDate.getFullYear() + '-' +
+                      String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(localDate.getDate()).padStart(2, '0');
+
                     if (!recordsByDay[localDateStr]) {
                       recordsByDay[localDateStr] = [];
                     }
                     recordsByDay[localDateStr].push({
-                      ...record, // Store the full record
+                      ...record,
                       type: record.type,
-                      time: recordDate.toLocaleTimeString(),
+                      time: localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
                       hasSignature: !!record.parent_signature,
                       note: record.note || null,
                       timestamp: record.timestamp
