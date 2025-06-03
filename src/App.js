@@ -11,7 +11,7 @@ import ResetPassword from './Reset/Reset-password';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Settings from './pages/Settings/Settings';
 import VerifyPage from './VerifyPage/VerifyPage';
-import DaycareDashboard from './DaycareDashboard/DaycareDashboard';
+import DaycareDashboard from './DaycareDashboard';
 import FeatureCard from './components/FeatureCard/FeatureCard';
 
 // Custom component for typewriter effect with styled parts
