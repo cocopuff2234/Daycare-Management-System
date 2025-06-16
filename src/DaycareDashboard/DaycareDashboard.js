@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 import ReactSignatureCanvas from 'react-signature-canvas';
 import ExcelJS from 'exceljs';
 import '../pages/Dashboard/Dashboard.css';
+import './DaycareDashboard.css';
 // Constance Shi
 const DaycareDashboard = () => {
   const { id: daycareId } = useParams();
@@ -525,16 +526,18 @@ const DaycareDashboard = () => {
                   <td style={{ textAlign: 'center' }}>
                     <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button
-                        className="dashboard-action-btn"
                         onClick={() => openSignatureModal(child, 'check_in')}
+                        className="dashboard-action-btn"
+                        type="button"
                       >
                         Check In
                       </button>
                     </span>
                     <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button
-                        className="dashboard-action-btn"
                         onClick={() => openSignatureModal(child, 'check_out')}
+                        className="dashboard-action-btn"
+                        type="button"
                       >
                         Check Out
                       </button>
@@ -553,10 +556,11 @@ const DaycareDashboard = () => {
                       </button>
                     </span>
                     <span style={{ display: 'inline-block' }}>
-                      <button 
-                      className="dashboard-action-btn"
-                      onClick={() => openReportModal(child)}>
-                        
+                      <button
+                        onClick={() => openReportModal(child)}
+                        className="dashboard-action-btn"
+                        type="button"
+                      >
                         View Monthly Report
                       </button>
                     </span>
@@ -723,10 +727,19 @@ const DaycareDashboard = () => {
                 />
               </label>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-                <button type="button" onClick={() => setShowAbsentModal(false)}>
+                <button
+                  type="button"
+                  onClick={() => setShowAbsentModal(false)}
+                  className="dashboard-action-btn"
+                >
                   Cancel
                 </button>
-                <button type="submit">Submit</button>
+                <button
+                  type="submit"
+                  className="dashboard-action-btn"
+                >
+                  Submit
+                </button>
               </div>
             </form>
           </div>
