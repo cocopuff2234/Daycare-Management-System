@@ -162,3 +162,32 @@
   margin-top: 8px;
   text-align: center;
 }
+
+/* Modern white action button with animation for all dashboard actions and modals */
+.dashboard-action-btn {
+  background: #fff;
+  color: #2563eb;
+  border: 1.5px solid #2563eb;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.06);
+  transition: 
+    background 0.18s cubic-bezier(.4,0,.2,1),
+    color 0.18s cubic-bezier(.4,0,.2,1),
+    box-shadow 0.18s cubic-bezier(.4,0,.2,1),
+    border-color 0.18s cubic-bezier(.4,0,.2,1),
+    transform 0.13s cubic-bezier(.4,0,.2,1);
+}
+
+.dashboard-action-btn:hover,
+.dashboard-action-btn:focus {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.13);
+  transform: translateY(-2px) scale(1.03);
+  outline: none;
+}

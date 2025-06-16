@@ -525,6 +525,7 @@ const DaycareDashboard = () => {
                   <td style={{ textAlign: 'center' }}>
                     <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button
+                        className="dashboard-action-btn"
                         onClick={() => openSignatureModal(child, 'check_in')}
                       >
                         Check In
@@ -532,22 +533,30 @@ const DaycareDashboard = () => {
                     </span>
                     <span style={{ display: 'inline-block', marginRight: 8 }}>
                       <button
+                        className="dashboard-action-btn"
                         onClick={() => openSignatureModal(child, 'check_out')}
                       >
                         Check Out
                       </button>
                     </span>
                     <span style={{ display: 'inline-block', marginRight: 8 }}>
-                      <button onClick={() => {
-                        setAbsentChild(child);
-                        setAbsentReason('');
-                        setShowAbsentModal(true);
-                      }}>
+                      <button
+                        onClick={() => {
+                          setAbsentChild(child);
+                          setShowAbsentModal(true);
+                          setAbsentReason('');
+                        }}
+                        className="dashboard-action-btn"
+                        type="button"
+                      >
                         Mark Absent
                       </button>
                     </span>
                     <span style={{ display: 'inline-block' }}>
-                      <button onClick={() => openReportModal(child)}>
+                      <button 
+                      className="dashboard-action-btn"
+                      onClick={() => openReportModal(child)}>
+                        
                         View Monthly Report
                       </button>
                     </span>
@@ -633,16 +642,28 @@ const DaycareDashboard = () => {
                   }}
                 />
               </label>
-              <div style={{ marginTop: 16, marginBottom: 8 }}>
-                <button type="button" onClick={() => sigPadRef.current && sigPadRef.current.clear()}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 24 }}>
+                <button
+                  type="button"
+                  onClick={() => sigPadRef.current && sigPadRef.current.clear()}
+                  className="dashboard-action-btn"
+                  style={{ marginRight: 'auto' }}
+                >
                   Clear
                 </button>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-                <button type="button" onClick={() => setShowSignatureModal(false)}>
+                <button
+                  type="button"
+                  onClick={() => setShowSignatureModal(false)}
+                  className="dashboard-action-btn"
+                >
                   Cancel
                 </button>
-                <button type="submit">Submit</button>
+                <button
+                  type="submit"
+                  className="dashboard-action-btn"
+                >
+                  Submit
+                </button>
               </div>
             </form>
           </div>
