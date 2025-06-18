@@ -103,43 +103,45 @@ const Home = ({ onNavigate }) => {
   };
 
   return (
-    <div className="home-container">
-      <div className="App">
-        {/* Background decorative elements */}
-        <div className="decorative-element yellow-blob"></div>
-        <div className="decorative-element blue-blob"></div>
-        <div className="decorative-element pink-blob"></div>
-      
-        <div className="header-buttons">
-          <SignInBtn onClick={handleSignInClick} />
-          <ContactUsBtn onClick={handleContactClick} />
-        </div>
+    <div className="responsive-wrapper">
+      <div className="home-container">
+        <div className="App">
+          {/* Background decorative elements */}
+          <div className="decorative-element yellow-blob"></div>
+          <div className="decorative-element blue-blob"></div>
+          <div className="decorative-element pink-blob"></div>
         
-        <div className="main-content">
-          <h1 className="main-heading">
-            <TypewriterWithStyledParts />
-          </h1>
-          <p className="sub-heading" style={{ marginBottom: '12px' }}>Streamline communication, attendance tracking, and billing,</p>
-          <p className="sub-heading">giving you more time to focus on what matters most <span style={{ color: "#2563eb", fontWeight: "600" }}>—the children</span></p>
-          
-          {/* Feature cards */}
-          <div className="feature-cards-container">
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={feature.title}
-                title={feature.title}
-                description={feature.description}
-              />
-            ))}
+          <div className="header-buttons">
+            <SignInBtn onClick={handleSignInClick} />
+            <ContactUsBtn onClick={handleContactClick} />
           </div>
           
-          {/* Trusted by section */}
-          <div className="trusted-by">
-            <p>Trusted by daycares across the Bay Area</p>
-            <div className="indicator-dots">
-              <div className="dot blue"></div>
-              <div className="dot purple"></div>
-              <div className="dot pink"></div>
+          <div className="main-content">
+            <h1 className="main-heading">
+              <TypewriterWithStyledParts />
+            </h1>
+            <p className="sub-heading" style={{ marginBottom: '12px' }}>Streamline communication, attendance tracking, and billing,</p>
+            <p className="sub-heading">giving you more time to focus on what matters most <span style={{ color: "#2563eb", fontWeight: "600" }}>—the children</span></p>
+            
+            {/* Feature cards */}
+            <div className="feature-cards-container">
+              {features.map((feature, index) => (
+                <FeatureCard
+                  key={feature.title}
+                  title={feature.title}
+                  description={feature.description}
+                />
+              ))}
+            </div>
+            
+            {/* Trusted by section */}
+            <div className="trusted-by">
+              <p>Trusted by daycares across the Bay Area</p>
+              <div className="indicator-dots">
+                <div className="dot blue"></div>
+                <div className="dot purple"></div>
+                <div className="dot pink"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -176,4 +178,3 @@ const App = () => {
 };
 
 export default App;
-
