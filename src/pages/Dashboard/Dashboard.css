@@ -52,11 +52,8 @@
 /* Remove signout-text as we're not showing text anymore */
 
 .dashboard-main {
-  flex: 1;
-  padding: 32px;
-  margin-left: 84px; /* Add margin to account for fixed sidebar width (60px + 24px padding) */
+  overflow-x: auto;
 }
-
 .dashboard-heading {
   margin-bottom: 32px;
   font-size: 2rem;
@@ -114,11 +111,13 @@
 
 .dashboard-table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   margin-top: 16px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  table-layout: fixed;
+  table-layout: auto;
+  /* Remove display: block and overflow-x:auto from here if present */
 }
 
 .dashboard-table th,
